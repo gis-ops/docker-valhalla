@@ -2,9 +2,10 @@ version: '3.0'
 services:
   valhalla:
     image: gisops/valhalla:latest
-    build:
-      args:
-        - version: 3.0.9
+    #build:
+    #  context: .
+    #  args:
+    #    - version="3.0.9"
     ports:
       - "8002:8002"
     volumes:
@@ -20,7 +21,7 @@ services:
       - min_y=38 # -> Albania | -90  -> World
       - max_x=22 # -> Albania |  180 -> World
       - max_y=43 # -> Albania |  90  -> World
-      - use_tiles_only=True
+      - use_tiles_only=False
       - force_rebuild=False
       - force_rebuild_elevation=False
       - build_elevation=False
