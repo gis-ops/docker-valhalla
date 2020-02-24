@@ -1,0 +1,28 @@
+version: '3.0'
+services:
+  valhalla:
+    image: gisops/valhalla:latest
+    build:
+      args:
+        - version: 3.0.9
+    ports:
+      - "8002:8002"
+    volumes:
+      - ./custom_files/:/custom_files
+    environment:
+      # The tile_file must be located in the same folder as the docker-compose.
+      # The tile_file has priority and is used when valid.
+      # If the tile_file doesn't exist, the url is used instead.
+      # Don't blank out tile_url when you use tile_file and vice versa.
+      - tile_urls=https://download.geofabrik.de/europe/andorra-latest.osm.pbf https://download.geofabrik.de/europe/albania-latest.osm.pbf
+      # Get correct bounding box from e.g. https://boundingbox.klokantech.com/
+      - min_x=18 # -> Albania | -180 -> World
+      - min_y=38 # -> Albania | -90  -> World
+      - max_x=22 # -> Albania |  180 -> World
+      - max_y=43 # -> Albania |  90  -> World
+      - use_tiles_only=True
+      - force_rebuild=False
+      - force_rebuild_elevation=False
+      - build_elevation=False
+      - build_admins=False
+      - build_time_zones=False
