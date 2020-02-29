@@ -36,7 +36,7 @@ hash_exists() {
   fi
 
   old_hashes=""
-  cat .files_hashes.txt
+  cat .file_hashes.txt
   # Read the old hashes
   while IFS="" read -r line || [[ -n "$line" ]]; do
     old_hashes="${old_hashes} ${line}"
@@ -129,10 +129,12 @@ cd ${custom_tile_folder}
 
 # Check valhalla_tiles.tar hash
 if test -f "${custom_tile_folder}/valhalla_tiles.tar" && hash_exists ${custom_tile_folder} "${custom_tile_folder}/valhalla_tiles.tar"; then
-  echo "Valid valhalla_tiles.tar found with use_tile_only: ${use_tiles_only}! Jumping directly to the tile loading!"
+  echo "Valid valhalla_tiles.tar found with use_tiles_ignore_pbf: ${use_tiles_only}!"
   if [[ ${use_tiles_only} == "True" ]]; then
+    echo "Jumping directly to the tile loading!"
     exit 0
   else
+    echo "Build new valhalla_tiles.tar from available PBF(s)."
     skip_build=0
   fi
 else
