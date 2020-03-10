@@ -51,5 +51,4 @@ RUN echo "Installing Valhalla..." && \
 
 # Expose the necessary port
 EXPOSE 8002
-ENTRYPOINT ["/bin/bash", "/valhalla/scripts/run.sh"]
-#CMD /valhalla/scripts/run.sh
+CMD ${SCRIPTS_DIR}/run.sh
