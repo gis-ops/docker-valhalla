@@ -2,12 +2,13 @@ version: '3.0'
 services:
   valhalla:
     image: gisops/valhalla:latest
+    container_name: valhalla_latest
     build:
-      context: .
-      args:
-        - version=3.0.9
-    ports:
-      - "8002:8002"
+    #build:
+    #  context: .
+    #  args:
+    #    - VALHALLA_RELEASE=3.0.9
+    #    - PRIMESERVER_RELEASE=0.6.5
     volumes:
       - ./custom_files/:/custom_files
     environment:

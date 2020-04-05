@@ -3,7 +3,7 @@
 A hyper-flexible Docker image for the excellent [Valhalla](https://github.com/valhalla/valhalla) routing framework.
 
 ```bash
-docker run -dt --name valhalla_gis-ops -v $PWD/custom_files:/custom_files gisops/valhalla:latest
+docker run -dt --name valhalla_gis-ops -p 8002:8002 -v $PWD/custom_files:/custom_files gisops/valhalla:latest
 ```
 
 This image aims at being user-friendly and most efficient with your time and resources. Once built, you can easily change Valhalla's configuration, the underlying OSM data graphs are built from, accompanying data (like Admin Areas, elevation tiles) or even pre-built graph tiles. Upon `docker restart <container>` those changes are taken into account via **hashed files**, and, if necessary, new graph tiles will be built automatically.
@@ -12,7 +12,7 @@ This image aims at being user-friendly and most efficient with your time and res
 
 -   Easily switch graphs by mapping different volumes to containers.
 -   Stores all relevant data (Admin areas, elevation, TimeZone data, tiles) in the mapped volume.
--   Load and built from **multiple URLs** pointing to valid pbf files.
+-   Load and build from **multiple URLs** pointing to valid pbf files.
 -   Load local data through volume mapping.
 -   **Supports auto rebuild** on volume file changes through hash mapping.
 
@@ -21,18 +21,23 @@ This image aims at being user-friendly and most efficient with your time and res
 For the following instructions to work, you'll need to have the image locally available already, either from [Docker Hub](https://hub.docker.com/repository/docker/gisops/valhalla) or from local:
 
 ```bash
-docker build [--build-arg <version>] -t gisops/valhalla .  # --build-arg is optional to tag a Valhalla release, e.g. 3.0.9
+docker build -t gisops/valhalla .
 #or
 docker pull gisops/valhalla:<tag>  # tag one of [latest, or Vahalla release version, e.g. 3.0.9]
 ```
 
+The `docker build` takes a few `--build-arg` arguments:
+
+- `VALHALLA_RELEASE`: a valid Valhalla git branch, commit SHA or release version, e.g. `3.0.9`. Default `master`.
+- `PRIMESERVER_RELEASE`: a valid `prime_server` git branch, commit SHA or release version, e.g. `0.6.5`. Default `master`.
+
 Then start a background container from that image:
 
 ```bash
-docker run -dt -v $PWD/custom_files:/custom_files --name valhalla_1 valhalla
+docker run -dt -v $PWD/custom_files:/custom_files -p 8002:8002 --name valhalla_1 valhalla
 ```
 
-The important part here is, that you map a volume from your host machine to **`/custom_files`**. The container will dump all relevant Valhalla files to that directory.
+The important part here is, that you map a volume from your host machine to the container's **`/custom_files`**. The container will dump all relevant Valhalla files to that directory.
 
 At this point Valhalla is running, but there is no graph tiles yet. Follow the steps below to customize your Valhalla instance in a heartbeat.
 
@@ -53,13 +58,15 @@ If you change the PBF files by either adding new ones or deleting any, Valhalla 
 
 #### Customize Valhalla configuration
 
-If you need to customize Valhalla's configuration to e.g. increase the allowed maximum distance for the `/route` POST endpoint, just edit `custom_files/valhalla.json` and restart the container. It won't rebuild the tiles in this case.
+If you need to customize Valhalla's configuration to e.g. increase the allowed maximum distance for the `/route` POST endpoint, just edit `custom_files/valhalla.json` and restart the container. It won't rebuild the tiles in this case, unless you tell it to do so via environment variables.
 
 #### Run Valhalla with pre-built tiles
 
-In the case where you have a pre-built `tiles.tar` package from another Valhalla instance, you can also dump that to `custom_files/` and they're loaded upon container restart.
+In the case where you have a pre-built `tiles.tar` package from another Valhalla instance, you can also dump that to `custom_files/` and they're loaded upon container restart if you set the following environment variables: `use_tiles_ignore_pbf=True`, `force_rebuild=False`.
 
 ## Environment variables
+
+**It is recommended to set all environment variables**.
 
 This image respects the following custom environment variables to be passed during container startup:
 
@@ -97,7 +104,7 @@ services:
       - min_y=38 # -> Albania | -90  -> World
       - max_x=22 # -> Albania |  180 -> World
       - max_y=43 # -> Albania |  90  -> World
-      - use_tiles_only=False
+      - use_tiles_ignore_pbf=False
       - force_rebuild=False
       - force_rebuild_elevation=False
       - build_elevation=True
