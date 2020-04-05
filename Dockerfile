@@ -37,12 +37,12 @@ WORKDIR /valhalla/
 # Copy all necessary build scripts
 COPY scripts/. ${SCRIPTS_DIR}
 
-ARG PRIMESERVER_RELEASE=master
+ARG PRIMESERVER_RELEASE=0.6.5
 RUN echo "Installing prime_server..." && \
     /bin/bash ${SCRIPTS_DIR}/build_prime_server.sh ${PRIMESERVER_RELEASE}
 
 # Build Valhalla
-ARG VALHALLA_RELEASE=master
+ARG VALHALLA_RELEASE=3.0.9
 RUN echo "Installing Valhalla..." && \
     /bin/bash ${SCRIPTS_DIR}/build_valhalla.sh ${VALHALLA_RELEASE} && \
     cp -r /valhalla/valhalla_git/scripts/. ${SCRIPTS_DIR} && \
