@@ -12,7 +12,7 @@ RUN echo "Installing dependencies..." && \
         # prime_server requirements
         automake locales autoconf pkg-config build-essential lcov libcurl4-openssl-dev git-core libzmq3-dev libczmq-dev \
         # Valhalla requirements
-        apt-utils cmake curl wget jq \
+        apt-utils cmake curl wget unzip jq \
         ca-certificates gnupg2 parallel libczmq-dev libzmq5 spatialite-bin libtool \
         zlib1g-dev libsqlite3-mod-spatialite libgeos-dev libgeos++-dev libprotobuf-dev \
         protobuf-compiler libboost-all-dev libsqlite3-dev libspatialite-dev liblua5.3-dev lua5.3 \
