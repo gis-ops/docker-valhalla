@@ -18,10 +18,10 @@ This image aims at being user-friendly and most efficient with your time and res
 
 ## Container recipes
 
-For the following instructions to work, you'll need to have the image locally available already, either from [Docker Hub](https://hub.docker.com/repository/docker/gisops/valhalla) or from local:
+For the following instructions to work, you'll need to have the image locally available already, either from [Docker Hub](https://hub.docker.com/repository/docker/gisops/valhalla) or from local. **Note**, when locally building the image, you'll need to set the `VALHALLA_RELEASE` build argument to be the same release as the branch you're building from this repository:
 
 ```bash
-docker build -t gisops/valhalla .
+docker build -t --build-arg VALHALLA_RELEASE=<release_matching_branch> gisops/valhalla .
 #or
 docker pull gisops/valhalla:<tag>  # tag one of [latest, or Vahalla release version, e.g. 3.0.9]
 ```
