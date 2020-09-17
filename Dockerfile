@@ -15,7 +15,7 @@ RUN echo "Installing dependencies..." && \
         apt-utils cmake curl wget unzip jq \
         ca-certificates gnupg2 parallel libczmq-dev libzmq5 spatialite-bin libtool \
         zlib1g-dev libsqlite3-mod-spatialite libgeos-dev libgeos++-dev libprotobuf-dev \
-        protobuf-compiler libboost-all-dev libsqlite3-dev libspatialite-dev liblua5.3-dev lua5.3 \
+        protobuf-compiler libboost-all-dev libsqlite3-dev libspatialite-dev libluajit-5.1-dev \
       > /dev/null && \
     locale-gen en_US.UTF-8 && \
     # set paths to fix the libspatialite error
