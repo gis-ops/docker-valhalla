@@ -16,6 +16,13 @@ This image aims at being user-friendly and most efficient with your time and res
 -   Load local data through volume mapping.
 -   **Supports auto rebuild** on volume file changes through hash mapping.
 
+## Dockerhub
+
+In the [Dockerhub repository](https://hub.docker.com/r/gisops/valhalla) you'll find the following images/tags:
+
+- stable release tags (e.g. 3.0.9)
+- `latest`, updated from Valhalla Github repository every Saturday morning
+
 ## Container recipes
 
 For the following instructions to work, you'll need to have the image locally available already, either from [Docker Hub](https://hub.docker.com/repository/docker/gisops/valhalla) or from local. **Note**, when locally building the image, you'll need to set the `VALHALLA_RELEASE` build argument to be the same release as the branch you're building from this repository:
