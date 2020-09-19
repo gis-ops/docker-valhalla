@@ -28,7 +28,7 @@ In the [Dockerhub repository](https://hub.docker.com/r/gisops/valhalla) you'll f
 For the following instructions to work, you'll need to have the image locally available already, either from [Docker Hub](https://hub.docker.com/repository/docker/gisops/valhalla) or from local. **Note**, when locally building the image, you'll need to set the `VALHALLA_RELEASE` build argument to be the same release as the branch you're building from this repository:
 
 ```bash
-docker build -t --build-arg VALHALLA_RELEASE=<release_matching_branch> gisops/valhalla .
+docker build -t gisops/valhalla --build-arg VALHALLA_RELEASE=<release_matching_branch> .
 #or
 docker pull gisops/valhalla:<tag>  # tag one of [latest, or Vahalla release version, e.g. 3.0.9]
 ```
