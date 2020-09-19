@@ -279,7 +279,7 @@ if [[ ${build_time_zones} == "True" ]]; then
   echo "==========================="
   echo "= Build the timezone data ="
   echo "==========================="
-  ./valhalla_build_timezones ${config_file}
+  ./valhalla_build_timezones > ${custom_tile_folder}/timezone_data/timezones.sqlite
 fi
 
 # Finally build the tiles
