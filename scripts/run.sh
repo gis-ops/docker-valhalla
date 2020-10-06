@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+set -e
+set -x
+
 SCRIPTS_PATH="/valhalla/scripts"
 CUSTOM_FILES="/custom_files"
 CONFIG_FILE="${CUSTOM_FILES}/valhalla.json"

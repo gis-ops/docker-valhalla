@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+set -e
+set -x
+
 hash_counter() {
   # The first parameter is the location path of the tile file without the hash filename.
   # That is handled internally. The second is the file with path that should be matched against the existing tiles hashes.
