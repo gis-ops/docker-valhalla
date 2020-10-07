@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
 
-set -e
-set -x
-
 hash_counter() {
   # The first parameter is the location path of the tile file without the hash filename.
   # That is handled internally. The second is the file with path that should be matched against the existing tiles hashes.
@@ -291,8 +288,7 @@ echo "========================="
 echo "= Build the tile files. ="
 echo "========================="
 echo "Running build tiles with: ${config_file} ${files}"
-valhalla_build_tiles -c ${config_file} ${files}
-# Tar up the tiles in the valhalla_tiles folder
+valhalla_build_tiles -c ${config_file} ${files}	|| exit 1
 find valhalla_tiles | sort -n | tar cf "${custom_tile_folder}/valhalla_tiles.tar" --no-recursion -T -
 cd ${custom_tile_folder}
 

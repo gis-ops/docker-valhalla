@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
 
-set -e
-set -x
-
 url="https://github.com/kevinkreiser/prime_server.git"
 NPROC=$(nproc)
 
