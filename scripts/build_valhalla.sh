@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -e
+
 url="https://github.com/valhalla/valhalla"
 NPROC=$(nproc)
 
