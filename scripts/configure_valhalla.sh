@@ -1,5 +1,26 @@
 #!/usr/bin/env bash
 
+# create global variables
+files=""
+files_counter=0
+skip_build=0
+tile_files=""
+script_path=${1}
+config_file=${2}
+echo "TEST: ${3}"
+custom_tile_folder=${3}
+tile_urls=${4}
+min_x=${5}
+max_x=${6}
+min_y=${7}
+max_y=${8}
+build_elevation=${9}
+build_admins=${10}
+build_time_zones=${11}
+force_rebuild=${12}
+force_rebuild_elevation=${13}
+use_tiles_only=${14}
+
 hash_counter() {
   # The first parameter is the location path of the tile file without the hash filename.
   # That is handled internally. The second is the file with path that should be matched against the existing tiles hashes.
@@ -98,26 +119,94 @@ download_files() {
 
 }
 
-# create global variables
-files=""
-files_counter=0
-skip_build=0
-tile_files=""
-script_path=${1}
-config_file=${2}
-echo "TEST: ${3}"
-custom_tile_folder=${3}
-tile_urls=${4}
-min_x=${5}
-max_x=${6}
-min_y=${7}
-max_y=${8}
-build_elevation=${9}
-build_admins=${10}
-build_time_zones=${11}
-force_rebuild=${12}
-force_rebuild_elevation=${13}
-use_tiles_only=${14}
+build_config () {
+  # Create build folder if they don't exist
+  mkdir -p ${custom_tile_folder}/{timezone_data,admin_data,elevation_data}
+
+  # Go to scripts folder
+  cd ${script_path}
+
+  # Check for bounding box
+  mjolnir_timezone=""
+  mjolnir_admin=""
+  additional_data_elevation=""
+
+  # Adding the desired modules
+  if [[ ${build_elevation} == "True" ]] && [[ "${min_x}" != 0 ]] && [[ "${max_x}" != 0 ]] && [[ "${min_y}" != 0 ]] && [[ "${max_y}" != 0 ]]; then
+    echo ""
+    echo "============================================================================"
+    echo "= Valid bounding box and data elevation parameter added. Adding elevation! ="
+    echo "============================================================================"
+    if [[ ${force_rebuild_elevation} == "True" ]]; then
+      echo "Rebuilding elevation tiles"
+      rm -rf "${custom_tile_folder}/elevation_data"
+      mkdir -p "${custom_tile_folder}/elevation_data"
+    fi
+    # Build the elevation data
+    valhalla_build_elevation ${min_x} ${max_x} ${min_y} ${max_y} ${custom_tile_folder}/elevation_data
+    additional_data_elevation="--additional-data-elevation ${custom_tile_folder}/elevation_data"
+  else
+    echo ""
+    echo "========================================================================="
+    echo "= No valid bounding box or elevation parameter set. Skipping elevation! ="
+    echo "========================================================================="
+  fi
+
+  if [[ ${build_admins} == "True" ]]; then
+    # Add admin path
+    echo ""
+    echo "========================"
+    echo "= Adding admin regions ="
+    echo "========================"
+    mjolnir_admin="--mjolnir-admin ${custom_tile_folder}/admin_data/admins.sqlite"
+  else
+    echo ""
+    echo "=========================="
+    echo "= Skipping admin regions ="
+    echo "=========================="
+  fi
+
+  if [[ ${build_time_zones} == "True" ]]; then
+    echo ""
+    echo "========================"
+    echo "= Adding timezone data ="
+    echo "========================"
+    mjolnir_timezone="--mjolnir-timezone ${custom_tile_folder}/timezone_data/timezones.sqlite"
+  else
+    echo ""
+    echo "=========================="
+    echo "= Skipping timezone data ="
+    echo "=========================="
+  fi
+
+  echo ""
+  echo "========================="
+  echo "= Build the config file ="
+  echo "========================="
+
+  valhalla_build_config --mjolnir-tile-dir ${script_path}/valhalla_tiles --mjolnir-tile-extract ${custom_tile_folder}/valhalla_tiles.tar ${mjolnir_timezone} ${mjolnir_admin} ${additional_data_elevation} >${config_file}
+}
+
+build_db () {
+  # Build the desired modules with the config file
+  if [[ ${build_admins} == "True" ]]; then
+    # Build the admin regions
+    echo ""
+    echo "==========================="
+    echo "= Build the admin regions ="
+    echo "==========================="
+    valhalla_build_admins --config ${config_file} ${files}
+  fi
+
+  if [[ ${build_time_zones} == "True" ]]; then
+    # Build the time zones
+    echo ""
+    echo "==========================="
+    echo "= Build the timezone data ="
+    echo "==========================="
+    ./valhalla_build_timezones > ${custom_tile_folder}/timezone_data/timezones.sqlite
+  fi
+}
 
 # Check for custom file folder and create if it doesn't exist.
 if ! test -f "${custom_tile_folder}"; then
@@ -127,18 +216,20 @@ fi
 # Go into custom tiles folder
 cd ${custom_tile_folder}
 
-# Check valhalla_tiles.tar hash
-if test -f "${custom_tile_folder}/valhalla_tiles.tar" && hash_exists ${custom_tile_folder} "${custom_tile_folder}/valhalla_tiles.tar"; then
+# Check if valhalla_tiles.tar exists
+if test -f "${custom_tile_folder}/valhalla_tiles.tar"; then
   echo "Valid valhalla_tiles.tar found with use_tiles_ignore_pbf: ${use_tiles_only}!"
   if [[ ${use_tiles_only} == "True" ]]; then
     echo "Jumping directly to the tile loading!"
+    build_config
+    build_db
     exit 0
   else
     echo "Build new valhalla_tiles.tar from available PBF(s)."
     skip_build=0
   fi
 else
-  echo "Valhalla tiles not found or hash doesn't match!"
+  echo "Valhalla tiles not found!"
   skip_build=1
 fi
 
@@ -161,6 +252,8 @@ if test -f "${custom_tile_folder}/valhalla_tiles.tar" && [[ ${skip_build} == 0 ]
   echo "PBF hashes: $hashes"
   echo "PBF file Counter: $files_counter"
   echo "Found valhalla_tiles.tar!"
+  build_config
+  build_db
   exit 0
 else
   echo "Either valhalla_tiles.tar couldn't be found or new files or file constellations were detected. Rebuilding files: ${files}"
@@ -197,90 +290,9 @@ if [[ ${files_counter} == 0 ]]; then
   done
 fi
 
-# Create build folder if they don't exist
-mkdir -p ${custom_tile_folder}/{timezone_data,admin_data,elevation_data}
+build_config
 
-# Go to scripts folder
-cd ${script_path}
-
-# Check for bounding box
-mjolnir_timezone=""
-mjolnir_admin=""
-additional_data_elevation=""
-
-# Adding the desired modules
-if [[ ${build_elevation} == "True" ]] && [[ "${min_x}" != 0 ]] && [[ "${max_x}" != 0 ]] && [[ "${min_y}" != 0 ]] && [[ "${max_y}" != 0 ]]; then
-  echo ""
-  echo "============================================================================"
-  echo "= Valid bounding box and data elevation parameter added. Adding elevation! ="
-  echo "============================================================================"
-  if [[ ${force_rebuild_elevation} == "True" ]]; then
-    echo "Rebuilding elevation tiles"
-    rm -rf "${custom_tile_folder}/elevation_data"
-    mkdir -p "${custom_tile_folder}/elevation_data"
-  fi
-  # Build the elevation data
-  valhalla_build_elevation ${min_x} ${max_x} ${min_y} ${max_y} ${custom_tile_folder}/elevation_data
-  additional_data_elevation="--additional-data-elevation ${custom_tile_folder}/elevation_data"
-else
-  echo ""
-  echo "========================================================================="
-  echo "= No valid bounding box or elevation parameter set. Skipping elevation! ="
-  echo "========================================================================="
-fi
-
-if [[ ${build_admins} == "True" ]]; then
-  # Add admin path
-  echo ""
-  echo "========================"
-  echo "= Adding admin regions ="
-  echo "========================"
-  mjolnir_admin="--mjolnir-admin ${custom_tile_folder}/admin_data/admins.sqlite"
-else
-  echo ""
-  echo "=========================="
-  echo "= Skipping admin regions ="
-  echo "=========================="
-fi
-
-if [[ ${build_time_zones} == "True" ]]; then
-  echo ""
-  echo "========================"
-  echo "= Adding timezone data ="
-  echo "========================"
-  mjolnir_timezone="--mjolnir-timezone ${custom_tile_folder}/timezone_data/timezones.sqlite"
-else
-  echo ""
-  echo "=========================="
-  echo "= Skipping timezone data ="
-  echo "=========================="
-fi
-
-echo ""
-echo "========================="
-echo "= Build the config file ="
-echo "========================="
-
-valhalla_build_config --mjolnir-tile-dir ${script_path}/valhalla_tiles --mjolnir-tile-extract ${custom_tile_folder}/valhalla_tiles.tar ${mjolnir_timezone} ${mjolnir_admin} ${additional_data_elevation} >${config_file}
-
-# Build the desired modules with the config file
-if [[ ${build_admins} == "True" ]]; then
-  # Build the admin regions
-  echo ""
-  echo "==========================="
-  echo "= Build the admin regions ="
-  echo "==========================="
-  valhalla_build_admins --config ${config_file} ${files}
-fi
-
-if [[ ${build_time_zones} == "True" ]]; then
-  # Build the time zones
-  echo ""
-  echo "==========================="
-  echo "= Build the timezone data ="
-  echo "==========================="
-  ./valhalla_build_timezones > ${custom_tile_folder}/timezone_data/timezones.sqlite
-fi
+build_db
 
 # Finally build the tiles
 echo ""
@@ -293,4 +305,4 @@ find valhalla_tiles | sort -n | tar cf "${custom_tile_folder}/valhalla_tiles.tar
 cd ${custom_tile_folder}
 
 echo "Successfully build files: ${files}"
-add_hashes ${custom_tile_folder} "${files} ${custom_tile_folder}/valhalla_tiles.tar"
+add_hashes ${custom_tile_folder} "${files}"
