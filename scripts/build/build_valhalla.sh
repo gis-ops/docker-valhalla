@@ -13,17 +13,11 @@ git submodule sync
 git submodule update --init --recursive
 mkdir build
 cmake -H. -Bbuild \
-  -DCMAKE_C_FLAGS:STRING="${CFLAGS}" \
-  -DCMAKE_CXX_FLAGS:STRING="${CXXFLAGS}" \
-  -DCMAKE_EXE_LINKER_FLAGS:STRING="${LDFLAGS}" \
-  -DCMAKE_INSTALL_LIBDIR=lib \
+  -DCMAKE_INSTALL_PREFIX=/usr/local \
   -DCMAKE_BUILD_TYPE=Release \
-  -DCMAKE_INSTALL_PREFIX=/usr \
-  -DENABLE_DATA_TOOLS=On \
-  -DENABLE_PYTHON_BINDINGS=On \
-  -DENABLE_SERVICES=On \
-  -DENABLE_HTTP=On
+  -DENABLE_CCACHE=OFF \
+  -DENABLE_BENCHMARKS=OFF
 cd build
 make -j"$NPROC"
-make -j"$NPROC" check
+#make -j"$NPROC" check
 make install
