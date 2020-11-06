@@ -1,5 +1,5 @@
 FROM ubuntu:20.04 as builder
-MAINTAINER Julian Psotta <julian@gis-ops.com>
+MAINTAINER Nils Nolde <nils@gis-ops.com>
 
 # Set docker specific settings
 ENV TERM xterm
@@ -63,6 +63,7 @@ RUN apt-get update > /dev/null && \
       libzmq3-dev libczmq-dev spatialite-bin libprotobuf-lite17 \
       libsqlite3-0 libsqlite3-mod-spatialite libgeos-3.8.0 libcurl4 \
       python3-minimal && \
+    # annoying debian python distros..
     ln -s /usr/bin/python3 /usr/bin/python
 
 COPY scripts/runtime/. /valhalla/scripts

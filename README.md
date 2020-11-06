@@ -120,3 +120,7 @@ services:
 ```
 
 See [Environment variables](#environment-variables) for an explanation of the environment variables.
+
+## Acknowledgements
+
+This project was first introduced by [MichaelsJP](https://github.com/MichaelsJP).
