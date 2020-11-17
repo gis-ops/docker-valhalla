@@ -179,12 +179,19 @@ build_config () {
     echo "=========================="
   fi
 
-  echo ""
-  echo "========================="
-  echo "= Build the config file ="
-  echo "========================="
+  if ! test -f "${config_file}"; then
+    echo ""
+    echo "========================="
+    echo "= Build the config file ="
+    echo "========================="
 
-  valhalla_build_config --mjolnir-tile-dir ${script_path}/valhalla_tiles --mjolnir-tile-extract ${custom_tile_folder}/valhalla_tiles.tar ${mjolnir_timezone} ${mjolnir_admin} ${additional_data_elevation} >${config_file}
+    valhalla_build_config --mjolnir-tile-dir ${script_path}/valhalla_tiles --mjolnir-tile-extract ${custom_tile_folder}/valhalla_tiles.tar ${mjolnir_timezone} ${mjolnir_admin} ${additional_data_elevation} >${config_file}
+  else
+    echo ""
+    echo "=========================="
+    echo "= Using existing config file ="
+    echo "=========================="
+  fi
 }
 
 build_db () {
