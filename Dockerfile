@@ -62,7 +62,7 @@ RUN apt-get update > /dev/null && \
     apt-get install -y libboost-program-options1.71.0 libluajit-5.1-2 \
       libzmq3-dev libczmq-dev spatialite-bin libprotobuf-lite17 \
       libsqlite3-0 libsqlite3-mod-spatialite libgeos-3.8.0 libcurl4 \
-      python3-minimal && \
+      python3-minimal curl && \
     # annoying debian python distros..
     ln -s /usr/bin/python3 /usr/bin/python
 
