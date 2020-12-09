@@ -17,7 +17,6 @@ cmake -H. -Bbuild \
   -DCMAKE_BUILD_TYPE=Release \
   -DENABLE_CCACHE=OFF \
   -DENABLE_BENCHMARKS=OFF
-cd build
-make -j"$NPROC"
+make -C build -j"$NPROC"
 #make -j"$NPROC" check
 make install
