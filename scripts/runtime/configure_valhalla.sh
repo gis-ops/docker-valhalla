@@ -137,13 +137,6 @@ build_config () {
     echo "============================================================================"
     echo "= Valid bounding box and data elevation parameter added. Adding elevation! ="
     echo "============================================================================"
-    if [[ ${force_rebuild_elevation} == "True" ]]; then
-      echo "Rebuilding elevation tiles"
-      rm -rf "${custom_tile_folder}/elevation_data"
-      mkdir -p "${custom_tile_folder}/elevation_data"
-    fi
-    # Build the elevation data
-    valhalla_build_elevation ${min_x} ${max_x} ${min_y} ${max_y} ${custom_tile_folder}/elevation_data
     additional_data_elevation="--additional-data-elevation ${custom_tile_folder}/elevation_data"
   else
     echo ""
@@ -194,7 +187,7 @@ build_config () {
   fi
 }
 
-build_db () {
+build_extras () {
   # Build the desired modules with the config file
   if [[ ${build_admins} == "True" ]]; then
     # Build the admin regions
@@ -213,6 +206,21 @@ build_db () {
     echo "==========================="
     ./valhalla_build_timezones > ${custom_tile_folder}/timezone_data/timezones.sqlite
   fi
+
+
+  if [[ ${build_elevation} == "True" ]] && [[ "${min_x}" != 0 ]] && [[ "${max_x}" != 0 ]] && [[ "${min_y}" != 0 ]] && [[ "${max_y}" != 0 ]]; then
+    if [[ ${force_rebuild_elevation} == "True" ]]; then
+      echo "Rebuilding elevation tiles"
+      rm -rf "${custom_tile_folder}/elevation_data"
+      mkdir -p "${custom_tile_folder}/elevation_data"
+    fi
+    # Build the elevation data
+    echo ""
+    echo "==========================="
+    echo "= Download the elevation tiles ="
+    echo "==========================="
+    valhalla_build_elevation ${min_x} ${max_x} ${min_y} ${max_y} ${custom_tile_folder}/elevation_data
+  fi
 }
 
 # Check for custom file folder and create if it doesn't exist.
@@ -229,7 +237,7 @@ if test -f "${custom_tile_folder}/valhalla_tiles.tar"; then
   if [[ ${use_tiles_only} == "True" ]]; then
     echo "Jumping directly to the tile loading!"
     build_config
-    build_db
+    build_extras
     exit 0
   else
     echo "Build new valhalla_tiles.tar from available PBF(s)."
@@ -260,7 +268,7 @@ if test -f "${custom_tile_folder}/valhalla_tiles.tar" && [[ ${skip_build} == 0 ]
   echo "PBF file Counter: $files_counter"
   echo "Found valhalla_tiles.tar!"
   build_config
-  build_db
+  build_extras
   exit 0
 else
   echo "Either valhalla_tiles.tar couldn't be found or new files or file constellations were detected. Rebuilding files: ${files}"
@@ -298,8 +306,7 @@ if [[ ${files_counter} == 0 ]]; then
 fi
 
 build_config
-
-build_db
+build_extras
 
 # Finally build the tiles
 echo ""

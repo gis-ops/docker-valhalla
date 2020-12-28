@@ -13,10 +13,10 @@ git submodule sync
 git submodule update --init --recursive
 mkdir build
 cmake -H. -Bbuild \
-  -DCMAKE_INSTALL_PREFIX=/usr/local \
+  -DCMAKE_INSTALL_PREFIX=/usr \
   -DCMAKE_BUILD_TYPE=Release \
   -DENABLE_CCACHE=OFF \
   -DENABLE_BENCHMARKS=OFF
 make -C build -j"$NPROC"
-#make -j"$NPROC" check
-make install
+#make -C build -j"$NPROC" check
+make -C build install
