@@ -3,8 +3,6 @@ MAINTAINER Nils Nolde <nils@gis-ops.com>
 
 # Set docker specific settings
 ENV TERM xterm
-ENV LD_LIBRARY_PATH /usr/local/lib:/lib/x86_64-linux-gnu:/usr/lib/x86_64-linux-gnu:/lib32:/usr/lib32
-ENV PATH /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:$PATH
 
 # Install deps
 RUN echo "Installing dependencies..." && \
@@ -14,7 +12,7 @@ RUN echo "Installing dependencies..." && \
         # prime_server requirements
         automake locales autoconf pkg-config build-essential lcov libcurl4-openssl-dev git-core libzmq3-dev libczmq-dev \
         # Valhalla requirements
-        apt-utils cmake curl wget unzip jq \
+        apt-utils cmake curl wget unzip jq python3.8-dev \
         ca-certificates gnupg2 parallel spatialite-bin libtool \
         zlib1g-dev libsqlite3-mod-spatialite libgeos-dev libgeos++-dev libprotobuf-dev \
         protobuf-compiler libboost-all-dev libsqlite3-dev libspatialite-dev libluajit-5.1-dev \
@@ -52,7 +50,6 @@ RUN echo "Installing Valhalla..." && \
 # Second stage
 FROM ubuntu:20.04 as runner
 
-ENV PATH /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:$PATH
 COPY --from=builder /usr/local /usr/local
 COPY --from=builder /valhalla/scripts /valhalla/scripts
 COPY --from=builder /valhalla/conf /valhalla/conf
@@ -62,10 +59,16 @@ RUN apt-get update > /dev/null && \
     apt-get install -y libboost-program-options1.71.0 libluajit-5.1-2 \
       libzmq3-dev libczmq-dev spatialite-bin libprotobuf-lite17 \
       libsqlite3-0 libsqlite3-mod-spatialite libgeos-3.8.0 libcurl4 \
-      python3-minimal curl unzip parallel jq && \
-    # annoying debian python distros..
-    ln -s /usr/bin/python3 /usr/bin/python
+      python3.8-minimal curl unzip parallel jq && \
+    ln -s /usr/bin/python3.8 /usr/bin/python && \
+    ln -s /usr/bin/python3.8 /usr/bin/python3 && \
+    # python-minimal doesn't set up dist-packages
+    # for now, also create the valhalla package manually
+    mkdir -p /usr/lib/python3.8/dist-packages/valhalla && \
+    echo "from python_valhalla import *" > /usr/lib/python3.8/dist-packages/valhalla/__init__.py
 
+# copy python bindings separately as they need to be in /usr
+COPY --from=builder /usr/local/lib/python3.8/dist-packages/python_valhalla.cpython-38-x86_64-linux-gnu.so /usr/lib/python3.8/dist-packages
 COPY scripts/runtime/. /valhalla/scripts
 
 # Expose the necessary port

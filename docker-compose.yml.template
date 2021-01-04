@@ -7,8 +7,8 @@ services:
     #build:
     #  context: .
     #  args:
-    #    - VALHALLA_RELEASE=3.0.9
-    #    - PRIMESERVER_RELEASE=0.6.5
+    #    - VALHALLA_RELEASE=master
+    #    - PRIMESERVER_RELEASE=master
     volumes:
       - ./custom_files/:/custom_files
     environment:
