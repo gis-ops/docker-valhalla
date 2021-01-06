@@ -19,6 +19,6 @@ cmake -H. -Bbuild \
   -DENABLE_CCACHE=OFF \
   -DENABLE_BENCHMARKS=OFF \
   -DENABLE_TESTS=OFF \
-  -DENABLE_TOOLS=OFF
+  -DENABLE_TOOLS=ON
 make -C build -j"$NPROC"
 make -C build install
