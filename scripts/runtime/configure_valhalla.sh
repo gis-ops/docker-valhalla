@@ -33,7 +33,7 @@ hash_counter() {
   fi
 
   old_hashes=""
-  counter=-1
+  counter=0
   # Read the old hashes
   while IFS="" read -r line || [[ -n "$line" ]]; do
     echo "Scanning old hash ${line}"
