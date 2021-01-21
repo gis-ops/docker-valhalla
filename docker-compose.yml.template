@@ -3,7 +3,8 @@ services:
   valhalla:
     image: gisops/valhalla:latest
     container_name: valhalla_latest
-    build:
+    ports:
+      - 8002:8002
     #build:
     #  context: .
     #  args:
