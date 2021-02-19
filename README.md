@@ -69,7 +69,7 @@ If you need to customize Valhalla's configuration to e.g. increase the allowed m
 
 #### Run Valhalla with pre-built tiles
 
-In the case where you have a pre-built `tiles.tar` package from another Valhalla instance, you can also dump that to `custom_files/` and they're loaded upon container restart if you set the following environment variables: `use_tiles_ignore_pbf=True`, `force_rebuild=False`. Also, don't forget to set the correct `.file_hashes.txt` for your `valhalla_tiles.tar`.
+In the case where you have a pre-built `tiles.tar` package from another Valhalla instance, you can also dump that to `custom_files/` and they're loaded upon container restart if you set the following environment variables: `use_tiles_ignore_pbf=True`, `force_rebuild=False`. Also, don't forget to set the md5 sum for your `valhalla_tiles.tar` in `.file_hashes.txt`.
 
 ## Environment variables
 
