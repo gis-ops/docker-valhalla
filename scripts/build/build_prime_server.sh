@@ -6,8 +6,7 @@ NPROC=$(nproc)
 git clone ${url} && cd prime_server
 git fetch && git fetch --tags && git checkout "${1}"
 git submodule update --init --recursive
-./autogen.sh
-./configure --prefix=/usr/local LIBS="-lpthread"
+cmake .
 make all -j"$NPROC"
 make -k test -j"$NPROC"
 make install
