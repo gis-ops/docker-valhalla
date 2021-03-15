@@ -63,7 +63,7 @@ COPY --from=builder /usr/local /usr/local
 COPY --from=builder /valhalla/scripts /valhalla/scripts
 COPY --from=builder /valhalla/conf /valhalla/conf
 # copy python bindings separately as they need to be in /usr
-COPY --from=builder /usr/lib/python3/dist-packages/valhalla/ /usr/lib/python3/dist-packages
+COPY --from=builder /usr/lib/python3/dist-packages/valhalla/ /usr/lib/python3/dist-packages/valhalla
 
 ENV LD_LIBRARY_PATH="/usr/local/lib:${LD_LIBRARY_PATH}"
 
