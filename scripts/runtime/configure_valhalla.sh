@@ -107,7 +107,7 @@ download_files() {
       echo "==============================================================="
       echo " Downloading  ${url}"
       echo "==============================================================="
-      curl -O ${url}
+      curl --location -O ${url}
       download_counter=$((download_counter + 1))
       # Assign the file name of the osm extract for later use
     fi
