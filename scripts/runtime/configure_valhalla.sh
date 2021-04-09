@@ -102,7 +102,7 @@ download_files() {
   download_counter=0
   for url in ${2}; do
     echo "URL: ${url}"
-    if curl --output /dev/null --silent --head --fail "${url}"; then
+    if curl --location --output /dev/null --silent --head --fail "${url}"; then
       echo ""
       echo "==============================================================="
       echo " Downloading  ${url}"
