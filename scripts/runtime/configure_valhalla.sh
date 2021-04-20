@@ -73,12 +73,12 @@ download_files() {
   download_counter=0
 
   for url in ${1}; do
-    if curl --output /dev/null --silent --head --fail "${url}"; then
+    if curl --location --output /dev/null --silent --head --fail "${url}"; then
       echo ""
       echo "==============================================================="
       echo " Downloading  ${url}"
       echo "==============================================================="
-      curl -O ${url}
+      curl --location -O ${url}
       download_counter=$((download_counter + 1))
       # Assign the file name of the osm extract for later use
     fi
