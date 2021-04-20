@@ -44,6 +44,7 @@ RUN echo "Installing prime_server..." && \
 # Build Valhalla
 ARG VALHALLA_RELEASE=master
 RUN echo "Installing Valhalla..." && \
+    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib:/usr/local/lib && \
     /bin/bash ${SCRIPTS_DIR}/build_valhalla.sh ${VALHALLA_RELEASE} && \
     cp -r /valhalla/valhalla_git/scripts/. ${SCRIPTS_DIR}
 

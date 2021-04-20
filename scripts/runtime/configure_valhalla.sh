@@ -3,11 +3,10 @@
 # create global variables
 files=""
 files_counter=0
-skip_build=0
+do_build="False"
 tile_files=""
 script_path=${1}
 config_file=${2}
-echo "TEST: ${3}"
 custom_tile_folder=${3}
 tile_urls=${4}
 min_x=${5}
@@ -18,90 +17,62 @@ build_elevation=${9}
 build_admins=${10}
 build_time_zones=${11}
 force_rebuild=${12}
-force_rebuild_elevation=${13}
-use_tiles_only=${14}
+use_tiles_only=${13}
+
+hash_file="${custom_tile_folder}/.file_hashes.txt"
+
+admin_db="${custom_tile_folder}/admin_data/admins.sqlite"
+timezone_db="${custom_tile_folder}/timezone_data/timezones.sqlite"
+elevation_path="${custom_tile_folder}/elevation_data"
 
 hash_counter() {
-  # The first parameter is the location path of the tile file without the hash filename.
-  # That is handled internally. The second is the file with path that should be matched against the existing tiles hashes.
-  current_directory=${PWD}
-  cd ${1}
-  if ! [[ -f ".file_hashes.txt" ]]; then
-    echo "Hash counter couldn't find hash file!"
-    cd ${current_directory}
-    return 0
-  fi
-
   old_hashes=""
-  counter=-1
+  counter=0
   # Read the old hashes
   while IFS="" read -r line || [[ -n "$line" ]]; do
-    echo "Scanning old hash ${line}"
     old_hashes="${old_hashes} ${line}"
-  done <".file_hashes.txt"
+  done <"${hash_file}"
   for hash in ${old_hashes}; do
     counter=$((counter + 1))
   done
-  return ${counter}
+  echo ${counter}
 }
 
 hash_exists() {
-  # The first parameter is the location path of the tile file without the hash filename.
-  # That is handled internally. The second is the file with path that should be matched against the existing tiles hashes.
-  current_directory=${PWD}
-  cd ${1}
-  if ! [[ -f ".file_hashes.txt" ]]; then
-    echo "Couldn't find .file_hashes.txt"
-    cd ${current_directory}
-    return 1
-  fi
-
   old_hashes=""
-  cat .file_hashes.txt
+  cat ${hash_file}
   # Read the old hashes
   while IFS="" read -r line || [[ -n "$line" ]]; do
     old_hashes="${old_hashes} ${line}"
-  done <".file_hashes.txt"
-  hash="$(printf '%s' "${2}" | sha256sum | cut -f1 -d' ')"
-  cd ${current_directory}
+  done <"${hash_file}"
+  hash="$(printf '%s' "${1}" | sha256sum | cut -f1 -d' ')"
   if [[ ${old_hashes} == *"${hash}"* ]]; then
-    echo "Found valid hash for ${2}!"
-    return 0
+    echo True
   else
-    return 1
+    echo False
   fi
 }
 
 add_hashes() {
   # Add files to the hash list to check for updates on rerun.
-  # First parameter is the path where the hash file should be stored.
-  # The second is the string of file names with path.
-  current_directory=${PWD}
-  cd ${1}
   hashes=""
-  rm -rf .file_hashes.txt
-  echo "Hashing files: ${2}"
-  for value in ${2}; do
+  rm -f ${hash_file}
+  echo "Hashing files: ${1}"
+  for value in ${1}; do
     echo "Hashing file: ${value}"
     hash="$(printf '%s' "${value}" | sha256sum | cut -f1 -d' ')"
     hashes="${hashes} $hash"
   done
-  echo ${hashes} >>.file_hashes.txt
-  cat .file_hashes.txt
-  cd ${current_directory}
+  echo ${hashes} >> ${hash_file}
+  cat ${hash_file}
 }
 
 download_files() {
-  # $1 destination folder
-  # $2 files in one string with space as separator
-  current_diretory=${PWD}
-  cd ${1}
-  echo "PATH0: ${0}"
-  echo "PATH1: ${1}"
-  echo "PATH2: ${2}"
+  current_dir=${PWD}
+  cd ${custom_tile_folder}
   download_counter=0
-  for url in ${2}; do
-    echo "URL: ${url}"
+
+  for url in ${1}; do
     if curl --output /dev/null --silent --head --fail "${url}"; then
       echo ""
       echo "==============================================================="
@@ -117,59 +88,25 @@ download_files() {
     fi
   done
 
+  cd $current_dir
 }
 
 build_config () {
-  # Create build folder if they don't exist
-  mkdir -p ${custom_tile_folder}/{timezone_data,admin_data,elevation_data}
-
-  # Go to scripts folder
-  cd ${script_path}
-
-  # Check for bounding box
   mjolnir_timezone=""
   mjolnir_admin=""
   additional_data_elevation=""
 
   # Adding the desired modules
-  if [[ ${build_elevation} == "True" ]] && [[ "${min_x}" != 0 ]] && [[ "${max_x}" != 0 ]] && [[ "${min_y}" != 0 ]] && [[ "${max_y}" != 0 ]]; then
-    echo ""
-    echo "============================================================================"
-    echo "= Valid bounding box and data elevation parameter added. Adding elevation! ="
-    echo "============================================================================"
-    additional_data_elevation="--additional-data-elevation ${custom_tile_folder}/elevation_data"
-  else
-    echo ""
-    echo "========================================================================="
-    echo "= No valid bounding box or elevation parameter set. Skipping elevation! ="
-    echo "========================================================================="
+  if [[ ${build_elevation} == "True" || ${build_elevation} == "Force" ]]; then
+    additional_data_elevation="--additional-data-elevation $elevation_path"
   fi
 
-  if [[ ${build_admins} == "True" ]]; then
-    # Add admin path
-    echo ""
-    echo "========================"
-    echo "= Adding admin regions ="
-    echo "========================"
-    mjolnir_admin="--mjolnir-admin ${custom_tile_folder}/admin_data/admins.sqlite"
-  else
-    echo ""
-    echo "=========================="
-    echo "= Skipping admin regions ="
-    echo "=========================="
+  if [[ ${build_admins} == "True" || ${build_admins} == "Force" ]]; then
+    mjolnir_admin="--mjolnir-admin $admin_db"
   fi
 
-  if [[ ${build_time_zones} == "True" ]]; then
-    echo ""
-    echo "========================"
-    echo "= Adding timezone data ="
-    echo "========================"
-    mjolnir_timezone="--mjolnir-timezone ${custom_tile_folder}/timezone_data/timezones.sqlite"
-  else
-    echo ""
-    echo "=========================="
-    echo "= Skipping timezone data ="
-    echo "=========================="
+  if [[ ${build_time_zones} == "True" || ${build_time_zones} == "Force" ]]; then
+    mjolnir_timezone="--mjolnir-timezone $timezone_db"
   fi
 
   if ! test -f "${config_file}"; then
@@ -178,7 +115,7 @@ build_config () {
     echo "= Build the config file ="
     echo "========================="
 
-    valhalla_build_config --mjolnir-tile-dir ${script_path}/valhalla_tiles --mjolnir-tile-extract ${custom_tile_folder}/valhalla_tiles.tar ${mjolnir_timezone} ${mjolnir_admin} ${additional_data_elevation} >${config_file}
+    valhalla_build_config --mjolnir-tile-dir ${script_path}/valhalla_tiles --mjolnir-tile-extract ${custom_tile_folder}/valhalla_tiles.tar ${mjolnir_timezone} ${mjolnir_admin} ${additional_data_elevation} --mjolnir-traffic-extract "" --mjolnir-transit-dir "" > ${config_file}
   else
     echo ""
     echo "=========================="
@@ -188,48 +125,64 @@ build_config () {
 }
 
 build_extras () {
-  # Build the desired modules with the config file
-  if [[ ${build_admins} == "True" ]]; then
-    # Build the admin regions
+  # Only build the dbs if forced or the files don't exist
+
+  if [[ ${build_admins} == "True" && ! -f $admin_db ]] || [[ ${build_admins} == "Force" ]]; then
     echo ""
     echo "==========================="
     echo "= Build the admin regions ="
     echo "==========================="
     valhalla_build_admins --config ${config_file} ${files}
+  else
+    echo ""
+    echo "=========================="
+    echo "= Skipping admin regions ="
+    echo "=========================="
   fi
 
-  if [[ ${build_time_zones} == "True" ]]; then
-    # Build the time zones
+  if [[ ${build_time_zones} == "True" && ! -f $timezone_db ]] || [[ ${build_time_zones} == "Force" ]]; then
     echo ""
     echo "==========================="
     echo "= Build the timezone data ="
     echo "==========================="
-    ./valhalla_build_timezones > ${custom_tile_folder}/timezone_data/timezones.sqlite
+    valhalla_build_timezones > ${custom_tile_folder}/timezone_data/timezones.sqlite
+  else
+    echo "=========================="
   fi
 
 
-  if [[ ${build_elevation} == "True" ]] && [[ "${min_x}" != 0 ]] && [[ "${max_x}" != 0 ]] && [[ "${min_y}" != 0 ]] && [[ "${max_y}" != 0 ]]; then
-    if [[ ${force_rebuild_elevation} == "True" ]]; then
+  if [[ ${build_elevation} == "True" || ${build_elevation} == "Force" ]]; then
+    if [[ ${force_rebuild_elevation} == "Force" ]]; then
       echo "Rebuilding elevation tiles"
-      rm -rf "${custom_tile_folder}/elevation_data"
-      mkdir -p "${custom_tile_folder}/elevation_data"
+      rm -rf $elevation_path
+      mkdir -p $elevation_path
     fi
     # Build the elevation data
     echo ""
     echo "==========================="
     echo "= Download the elevation tiles ="
     echo "==========================="
-    valhalla_build_elevation ${min_x} ${max_x} ${min_y} ${max_y} ${custom_tile_folder}/elevation_data
+    valhalla_build_elevation ${min_x} ${max_x} ${min_y} ${max_y} $elevation_path
   fi
 }
 
 # Check for custom file folder and create if it doesn't exist.
-if ! test -f "${custom_tile_folder}"; then
+if ! test -d "${custom_tile_folder}"; then
   mkdir -p ${custom_tile_folder}
 fi
 
-# Go into custom tiles folder
-cd ${custom_tile_folder}
+# Same for hashes file
+if ! test -f "${hash_file}"; then
+  touch ${hash_file}
+fi
+
+# Create build folder if they don't exist
+dirs="timezone_data admin_data elevation_data"
+for d in $dirs; do
+  if ! test -d $custom_tile_folder/$d; then
+    mkdir $custom_tile_folder/$d
+  fi
+done
 
 # Check if valhalla_tiles.tar exists
 if test -f "${custom_tile_folder}/valhalla_tiles.tar"; then
@@ -239,30 +192,35 @@ if test -f "${custom_tile_folder}/valhalla_tiles.tar"; then
     build_config
     build_extras
     exit 0
-  else
-    echo "Build new valhalla_tiles.tar from available PBF(s)."
-    skip_build=0
   fi
 else
   echo "Valhalla tiles not found!"
-  skip_build=1
+  do_build="True"
 fi
 
 # Find and add .pbf files to the list of files
-for file in *.pbf; do
-  [[ -f "$file" ]] || break
-  if ! hash_exists ${custom_tile_folder} "${custom_tile_folder}/${file}"; then
+for file in $(ls $custom_tile_folder/*.pbf); do
+  if [[ ! $(hash_exists ${file}) == *"True" ]] ; then
     echo "Hash not found for: ${file}!"
-    skip_build=1
+    do_build="True"
   fi
-  files="${files} ${PWD}/${file}"
+  files="${files} ${file}"
   files_counter=$((files_counter + 1))
 done
 
-hash_counter ${custom_tile_folder}
-hashes=${?}
 
-if test -f "${custom_tile_folder}/valhalla_tiles.tar" && [[ ${skip_build} == 0 ]] && [[ ${hashes} == ${files_counter} ]] && [[ ${force_rebuild} == "False" ]]; then
+
+hashes=$(hash_counter)
+
+if [[ ${force_rebuild} == "True" ]]; then
+  echo "Detected forced rebuild. Deleting old files!"
+  rm -rf "${custom_tile_folder}/valhalla_tiles.tar"
+  rm -rf "${custom_tile_folder}/.file_hashes.txt"
+  echo "PBF file Counter: $files_counter"
+  do_build="True"
+fi
+
+if [[ -f "${custom_tile_folder}/valhalla_tiles.tar" && ${do_build} == "False" && ${hashes} == ${files_counter} ]]; then
   echo "All files have already been build and valhalla_tiles.tar exists and is valid. Starting without new build!"
   echo "PBF hashes: $hashes"
   echo "PBF file Counter: $files_counter"
@@ -276,31 +234,28 @@ else
   echo "PBF file Counter: $files_counter"
 fi
 
-if [[ ${force_rebuild} == "True" ]]; then
-  echo "Detected forced rebuild. Deleting old files!"
-  rm -rf "${custom_tile_folder}/valhalla_tiles.tar"
-  rm -rf "${custom_tile_folder}/timezone_data"
-  rm -rf "${custom_tile_folder}/admin_data"
-  rm -rf "${custom_tile_folder}/.file_hashes.txt"
-  echo "Counter: $files_counter"
-  skip_build=1
-fi
-
-if [[ ${files_counter} == 0 ]] && [[ ${skip_build} == 1 ]]; then
-  echo "No local files and no valhalla_tiles.tar found. Downloading links: ${tile_urls}!"
-  download_files "${custom_tile_folder}" "${tile_urls}"
-  skip_build=1
+if [[ ${files_counter} == 0 ]] && [[ ${do_build} == "True" ]]; then
+  if [[ -z "${tile_urls}" ]]; then
+    echo "No local PBF files, valhalla_tiles.tar and no tile URLs found. Nothing to do."
+    exit 1
+  else
+    echo "No local files and no valhalla_tiles.tar found. Downloading links: ${tile_urls}!"
+    download_files "${tile_urls}"
+    do_build="True"
+  fi
 fi
 
 if [[ ${files_counter} == 0 ]]; then
   # Find and add .pbf files to the list of files that were just downloaded
-  for file in *.pbf; do
-    [[ -f "$file" ]] || break
-    if ! hash_exists ${custom_tile_folder} "${custom_tile_folder}/${file}"; then
+  for file in $(ls $custom_tile_folder/*.pbf); do
+    echo "${file}"
+    if [[ ! $(hash_exists ${file}) == "True" ]]; then
       echo "Hash not found for: ${file}!"
-      skip_build=1
+      do_build="True"
+    else
+      echo "Hash found for: ${file}"
     fi
-    files="${files} ${custom_tile_folder}/${file}"
+    files="${files} ${file}"
     files_counter=$((files_counter + 1))
   done
 fi
@@ -315,8 +270,7 @@ echo "= Build the tile files. ="
 echo "========================="
 echo "Running build tiles with: ${config_file} ${files}"
 valhalla_build_tiles -c ${config_file} ${files}	|| exit 1
-find valhalla_tiles | sort -n | tar cf "${custom_tile_folder}/valhalla_tiles.tar" --no-recursion -T -
-cd ${custom_tile_folder}
+find ${script_path}/valhalla_tiles | sort -n | tar cf "${custom_tile_folder}/valhalla_tiles.tar" --no-recursion -T -
 
-echo "Successfully build files: ${files}"
-add_hashes ${custom_tile_folder} "${files}"
+echo "Successfully built files: ${files}"
+add_hashes "${files}"

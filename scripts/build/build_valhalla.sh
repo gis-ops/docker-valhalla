@@ -5,13 +5,10 @@ set -e
 url="https://github.com/valhalla/valhalla"
 NPROC=$(nproc)
 
-git clone $url valhalla_git
-cd valhalla_git
+git clone --recurse-submodules $url valhalla_git
+cd $_
 git fetch --tags
 git checkout "${1}"
-git submodule sync
-git submodule update --init --recursive
-mkdir build
 # install to /usr/local so we can copy easily from the builder to the runner
 cmake -H. -Bbuild \
   -DCMAKE_INSTALL_PREFIX=/usr/local \

@@ -11,10 +11,10 @@ This image aims at being user-friendly and most efficient with your time and res
 ## Features
 
 -   Easily switch graphs by mapping different volumes to containers.
--   Stores all relevant data (Admin areas, elevation, TimeZone data, tiles) in the mapped volume.
+-   Stores all relevant data (tiles, config, admin & timezone DBs, elevation) in the mapped volume.
 -   Load and build from **multiple URLs** pointing to valid pbf files.
 -   Load local data through volume mapping.
--   **Supports auto rebuild** on volume file changes through hash mapping.
+-   **Supports auto rebuild** on OSM file changes through hash mapping.
 
 ## Dockerhub
 
@@ -23,25 +23,42 @@ In the [Dockerhub repository](https://hub.docker.com/r/gisops/valhalla) you'll f
 - stable release tags (e.g. 3.0.9)
 - `latest`, updated from Valhalla Github repository every Saturday morning
 
-## Container recipes
+## Build the image
 
-For the following instructions to work, you'll need to have the image locally available already, either from [Docker Hub](https://hub.docker.com/repository/docker/gisops/valhalla) or from local. **Note**, when locally building the image, you'll need to set the `VALHALLA_RELEASE` build argument to be the same release as the branch you're building from this repository:
-
-```bash
-docker build -t gisops/valhalla --build-arg VALHALLA_RELEASE=<release_matching_branch> .
-#or
-docker pull gisops/valhalla:<tag>  # tag one of [latest, or Vahalla release version, e.g. 3.0.9]
-```
-
-The `docker build` takes a few `--build-arg` arguments:
+If you want to build the image yourself, there are 2 build arguments you should be aware about:
 
 - `VALHALLA_RELEASE`: a valid Valhalla git branch, commit SHA or release version, e.g. `3.0.9`. Default `master`.
 - `PRIMESERVER_RELEASE`: a valid `prime_server` git branch, commit SHA or release version, e.g. `0.6.5`. Default `master`.
 
-Then start a background container from that image:
+Then it's a simple
+
+```shell script
+docker build -t gisops/valhalla --build-arg VALHALLA_RELEASE=<release/commit/branch> .
+```
+
+## Environment variables
+
+This image respects the following custom environment variables to be passed during container startup. Note, all variables have a default:
+
+- `tile_urls`: Add as many (space-separated) URLs as you like, e.g. https://download.geofabrik.de/europe/andorra-latest.osm.pbf http://download.geofabrik.de/europe/faroe-islands-latest.osm.pbf. Default `""`.
+- `min_x`: Minimum longitude for elevation tiles, in decimal WGS84, e.g. 18.5
+- `min_y`: Minimum latitude for elevation tiles, in decimal WGS84, e.g. 18.5
+- `max_x`: Maximum longitude for elevation tiles, in decimal WGS84, e.g. 18.5
+- `max_y`: Maximum latitude for elevation tiles, in decimal WGS84, e.g. 18.5
+- `use_tiles_ignore_pbf`: `True` uses a local tile.tar file and skips building. Default `False`.
+- `force_rebuild`: `True` forces a rebuild of the routing tiles. Default `False`.
+- `build_elevation`: `True` builds elevation for the set coordinates. `Force` will do the same, but first delete any existing elevation tiles. Default `False`.
+- `build_admins`: `True` builds the admin db. `Force` will do the same, but first delete the existing db. Default `False`.
+- `build_time_zones`: `True` builds the timezone db. `Force` will do the same, but first delete the existing db. Default `False`.
+
+## Container recipes
+
+For the following instructions to work, you'll need to have the image locally available already, either from [Docker Hub](https://hub.docker.com/repository/docker/gisops/valhalla) or from [local](#build-the-image).
+
+Start a background container from that image:
 
 ```bash
-docker run -dt -v $PWD/custom_files:/custom_files -p 8002:8002 --name valhalla_1 valhalla
+docker run -dt -v $PWD/custom_files:/custom_files -p 8002:8002 --name valhalla gisops/valhalla:latest
 ```
 
 The important part here is, that you map a volume from your host machine to the container's **`/custom_files`**. The container will dump all relevant Valhalla files to that directory.
@@ -58,10 +75,10 @@ Just dump **single or multiple** OSM PBF files to your mapped `custom_files` dir
 cd custom_files
 # Download Andorra & Faroe Islands
 wget http://download.geofabrik.de/europe/faroe-islands-latest.osm.pbf http://download.geofabrik.de/europe/andorra-latest.osm.pbf
-docker restart valhalla_1
+docker restart valhalla
 ```
 
-If you change the PBF files by either adding new ones or deleting any, Valhalla will build new tiles on the next restart.
+If you change the PBF files by either adding new ones or deleting any, Valhalla will build new tiles on the next restart unless told not to (e.g. setting `use_tiles_ignore_pbf=True`).
 
 #### Customize Valhalla configuration
 
@@ -69,57 +86,7 @@ If you need to customize Valhalla's configuration to e.g. increase the allowed m
 
 #### Run Valhalla with pre-built tiles
 
-In the case where you have a pre-built `tiles.tar` package from another Valhalla instance, you can also dump that to `custom_files/` and they're loaded upon container restart if you set the following environment variables: `use_tiles_ignore_pbf=True`, `force_rebuild=False`. Also, don't forget to set the md5 sum for your `valhalla_tiles.tar` in `.file_hashes.txt`.
-
-## Environment variables
-
-**It is recommended to set all environment variables**.
-
-This image respects the following custom environment variables to be passed during container startup:
-
-- `tile_urls`: Add as many (space-separated) URLs as you like, e.g. https://download.geofabrik.de/europe/andorra-latest.osm.pbf http://download.geofabrik.de/europe/faroe-islands-latest.osm.pbf
-- `min_x`: Minimum longitude for elevation tiles, in decimal WGS84, e.g. 18.5
-- `min_y`: Minimum latitude for elevation tiles, in decimal WGS84, e.g. 18.5
-- `max_x`: Maximum longitude for elevation tiles, in decimal WGS84, e.g. 18.5
-- `max_y`: Maximum latitude for elevation tiles, in decimal WGS84, e.g. 18.5
-- `use_tiles_ignore_pbf`: Uses a local tile.tar file and skips building, as long as the hash of the tile.tar is in the local hash file.
-- `force_rebuild`: Force a complete rebuild of the PBF files. Only skipping elevation.
-- `force_rebuild_elevation`: Force a rebuild of the elevation data as well.
-- `build_elevation`: General switch to build with elevation support.
-- `build_admins`: General switch to build with admin data support.
-- `build_time_zones`: General switch to build with time zone support.
-
-## Example `docker-compose.yml`
-
-- Create a `docker-compose.yml` and paste the content below.
-- Now create a `custom_files` folder in the same directory to be able to mount it as a volume.
-- Add your desired PBF extracts in the folder or specify URLs in the `docker-compose.yml`.
-- Local files are always preferred!
-- If you change your local files and want to rebuild, just restart the docker container.
-```docker
-version: '3.0'
-services:
-  valhalla:
-    image: gisops/valhalla:latest
-    ports:
-      - "8002:8002"
-    volumes:
-      - ./custom_files/:/custom_files
-    environment:
-      - tile_urls=https://download.geofabrik.de/europe/andorra-latest.osm.pbf https://download.geofabrik.de/europe/albania-latest.osm.pbf
-      - min_x=18 # -> Albania | -180 -> World
-      - min_y=38 # -> Albania | -90  -> World
-      - max_x=22 # -> Albania |  180 -> World
-      - max_y=43 # -> Albania |  90  -> World
-      - use_tiles_ignore_pbf=False
-      - force_rebuild=False
-      - force_rebuild_elevation=False
-      - build_elevation=True
-      - build_admins=True
-      - build_time_zones=True
-```
-
-See [Environment variables](#environment-variables) for an explanation of the environment variables.
+In the case where you have a pre-built `valhalla_tiles.tar` package from another Valhalla instance, you can also dump that to `custom_files/` and they're loaded upon container restart if you set the following environment variables: `use_tiles_ignore_pbf=True`, `force_rebuild=False`. Also, don't forget to set the md5 sum for your `valhalla_tiles.tar` in `.file_hashes.txt`.
 
 ## Acknowledgements
 
