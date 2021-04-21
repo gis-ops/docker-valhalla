@@ -1,2 +1,5 @@
 docker-compose.yml
 custom_files/
+*.pbf
+*.tar
+*.sqlite
