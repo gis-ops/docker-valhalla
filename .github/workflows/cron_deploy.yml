@@ -3,11 +3,19 @@
 #  schedule:
 #    - cron: '0 3 * * 6' # everyday at 10am
 name: cron scheduler
-push:
-  - master
-pull_request:
-branches:
-  - master
+on:
+  push:
+    paths-ignore:
+      - '.gitignore'
+      - '**.md'
+    branches:
+      - master
+  pull_request:
+    paths-ignore:
+      - '.gitignore'
+      - '**.md'
+    branches:
+      - master
 
 jobs:
   build_image:
