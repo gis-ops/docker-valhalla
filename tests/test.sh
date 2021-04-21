@@ -119,4 +119,7 @@ fi
 
 docker rm -f valhalla_repeat
 
+echo "Final structure:"
+tree -L2 "${custom_file_folder}"
+
 exit 0

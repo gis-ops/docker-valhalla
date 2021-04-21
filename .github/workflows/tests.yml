@@ -1,8 +1,4 @@
-#name: test-deploy
-#on:
-#  schedule:
-#    - cron: '0 3 * * 6' # everyday at 10am
-name: cron scheduler
+name: ci tests
 on:
   push:
     paths-ignore:
@@ -26,4 +22,7 @@ jobs:
         run: |
           docker build -t gisops/valhalla:latest .
       - name: Test image
-        run : /bin/bash -c "./tests/test.sh"
+        run : |
+          apt-get update > /dev/null
+          apt-get install -y moreutils tree > /dev/null
+          /bin/bash -c "./tests/test.sh"
