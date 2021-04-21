@@ -1,7 +1,13 @@
-name: test-deploy
-on:
-  schedule:
-    - cron: '0 3 * * 6' # everyday at 10am
+#name: test-deploy
+#on:
+#  schedule:
+#    - cron: '0 3 * * 6' # everyday at 10am
+name: cron scheduler
+push:
+  - master
+pull_request:
+branches:
+  - master
 
 jobs:
   build_image:
@@ -13,5 +19,3 @@ jobs:
           docker build -t gisops/valhalla:latest .
       - name: Test image
         run : /bin/bash -c "./tests/test.sh"
-      - name: Upload image
-  

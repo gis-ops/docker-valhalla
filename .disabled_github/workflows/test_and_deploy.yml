@@ -1,5 +1,0 @@
-push:
-  - master
-pull_request:
-branches:
-  - master
