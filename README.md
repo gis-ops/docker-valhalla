@@ -27,15 +27,14 @@ In the [Dockerhub repository](https://hub.docker.com/r/gisops/valhalla) you'll f
 
 ## Build the image
 
-If you want to build the image yourself, there are 2 build arguments you should be aware about:
+If you want to build the image yourself, be aware that you might need to adapt the base image in the `Dockerfile` to reflect the version of Valhalla you'd like to build. You can find the tags of the `valhalla/valhalla:run-*` images here: https://hub.docker.com/r/valhalla/valhalla/tags.
 
-- `VALHALLA_RELEASE`: a valid Valhalla git branch, commit SHA or release version, e.g. `3.0.9`. Default `master`.
-- `PRIMESERVER_RELEASE`: a valid `prime_server` git branch, commit SHA or release version, e.g. `0.6.5`. Default `master`.
+**Note**, that this is only valid down to `3.1.0`, before the building scheme was completely different. Please contact enquiry@gis-ops.com if you need access to previous Valhalla versions via Docker.
 
 Then it's a simple
 
 ```shell script
-docker build -t gisops/valhalla --build-arg VALHALLA_RELEASE=<release/commit/branch> .
+docker build -t gisops/valhalla .
 ```
 
 ## Environment variables
