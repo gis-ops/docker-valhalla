@@ -52,6 +52,7 @@ This image respects the following custom environment variables to be passed duri
 - `build_elevation`: `True` builds elevation for the set coordinates. `Force` will do the same, but first delete any existing elevation tiles. Default `False`.
 - `build_admins`: `True` builds the admin db. `Force` will do the same, but first delete the existing db. Default `False`.
 - `build_time_zones`: `True` builds the timezone db. `Force` will do the same, but first delete the existing db. Default `False`.
+- `server_threads`: How many threads `valhalla_service` will run with. Default is 1 thread less than the value of `nproc`.
 
 ## Container recipes
 
