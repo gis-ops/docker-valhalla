@@ -1,14 +1,11 @@
-# we're NOT testing the weekly cron releases
-# as they should _only_ contain new (and tested)
-# valhalla code
+# be aware this won't test the auto-published
+# weekly 'latest' images (generated "manually")
 name: ci tests
 on:
   push:
     paths-ignore:
       - '.gitignore'
       - '**.md'
-    branches:
-      - master
   pull_request:
     paths-ignore:
       - '.gitignore'
