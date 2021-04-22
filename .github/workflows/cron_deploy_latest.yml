@@ -1,0 +1,20 @@
+# we only deploy latest image once a week
+# tagged images will be done on dockerhub
+# when pushing a new release branch
+name: deploy latest image
+on:
+  schedule:
+    - cron: "55 * * * *"
+
+jobs:
+  build_and_test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Build image
+        run: |
+          docker build -t gisops/valhalla:latest .
+      - name: Deploy image
+        run: |
+          docker login -u ${{ secrets.DOCKERHUB_USER }} -p ${{ secrets.DOCKERHUB_SECRET }}
+          docker push gisops/valhalla:latest

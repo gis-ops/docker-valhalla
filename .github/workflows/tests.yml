@@ -1,3 +1,6 @@
+# we're NOT testing the weekly cron releases
+# as they should _only_ contain new (and tested)
+# valhalla code
 name: ci tests
 on:
   push:
@@ -25,4 +28,4 @@ jobs:
         run : |
           sudo apt-get update > /dev/null
           sudo apt-get install -y moreutils tree > /dev/null
-          /bin/bash -c "./tests/test.sh"
+          sudo /bin/bash -c "./tests/test.sh"

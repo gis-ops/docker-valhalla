@@ -1,70 +1,33 @@
-FROM ubuntu:20.04 as builder
+# Take the official valhalla runner image,
+# remove a few superfluous things and
+# create a new runner image from ubuntu:20.04
+# with the previous runner's artifacts
+
+FROM valhalla/valhalla:run-latest as builder
 MAINTAINER Nils Nolde <nils@gis-ops.com>
 
-# Set docker specific settings
-ENV TERM xterm
+# remove some stuff from the original image
+RUN cd /usr/local/bin && \
+  preserve="valhalla_service valhalla_build_tiles valhalla_build_config valhalla_build_admins valhalla_build_timezones valhalla_build_elevation valhalla_ways_to_edges" && \
+  mv $preserve .. && \
+  for f in valhalla*; do rm $f; done && \
+  cd .. && mv $preserve ./bin
 
-# Install deps
-RUN echo "Installing dependencies..." && \
-    export DEBIAN_FRONTEND=noninteractive && \
-    apt-get update > /dev/null && apt-get update --fix-missing > /dev/null && \
-    apt-get install -y \
-        # prime_server requirements
-        automake locales autoconf pkg-config build-essential lcov libcurl4-openssl-dev git-core libzmq3-dev libczmq-dev \
-        # Valhalla requirements
-        apt-utils cmake curl wget unzip jq python3.8-dev \
-        ca-certificates gnupg2 parallel spatialite-bin libtool \
-        zlib1g-dev libsqlite3-mod-spatialite libgeos-dev libgeos++-dev libprotobuf-dev \
-        protobuf-compiler libboost-all-dev libsqlite3-dev libspatialite-dev libluajit-5.1-dev \
-      > /dev/null && \
-    locale-gen en_US.UTF-8 && \
-    # set paths to fix the libspatialite error
-    ln -s /usr/lib/x86_64-linux-gnu/mod_spatialite.so /usr/lib/mod_spatialite && \
-    # Create necessary folders
-    mkdir -p /valhalla/scripts /valhalla/conf/valhalla_tiles
-
-# Set language
-ENV LANG en_US.UTF-8
-ENV LANGUAGE en_US:en
-ENV LC_ALL en_US.UTF-8
-
-# Export path variables
-ENV SCRIPTS_DIR ${SCRIPTS_DIR:-"/valhalla/scripts"}
-ENV CONFIG_PATH ${CONFIG_PATH:-"/valhalla/conf/valhalla.json"}
-
-WORKDIR /valhalla/
-
-# Copy all necessary build scripts
-COPY scripts/build/. ${SCRIPTS_DIR}
-
-ARG PRIMESERVER_RELEASE=master
-RUN echo "Installing prime_server..." && \
-    /bin/bash ${SCRIPTS_DIR}/build_prime_server.sh ${PRIMESERVER_RELEASE}
-
-# Build Valhalla
-ARG VALHALLA_RELEASE=master
-RUN echo "Installing Valhalla..." && \
-    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib:/usr/local/lib && \
-    /bin/bash ${SCRIPTS_DIR}/build_valhalla.sh ${VALHALLA_RELEASE} && \
-    cp -r /valhalla/valhalla_git/scripts/. ${SCRIPTS_DIR}
-
-# Second stage
 FROM ubuntu:20.04 as runner
+MAINTAINER Nils Nolde <nils@gis-ops.com>
 
 RUN apt-get update > /dev/null && \
     export DEBIAN_FRONTEND=noninteractive && \
     apt-get install -y libboost-program-options1.71.0 libluajit-5.1-2 \
-      libzmq3-dev libczmq-dev spatialite-bin libprotobuf-lite17 \
+      libzmq5 libczmq4 spatialite-bin libprotobuf-lite17 \
       libsqlite3-0 libsqlite3-mod-spatialite libgeos-3.8.0 libcurl4 \
-      python3.8-minimal curl unzip parallel jq > /dev/null && \
+      python3.8-minimal curl unzip parallel jq spatialite-bin > /dev/null && \
     ln -s /usr/bin/python3.8 /usr/bin/python && \
     ln -s /usr/bin/python3.8 /usr/bin/python3
 
 COPY --from=builder /usr/local /usr/local
-COPY --from=builder /valhalla/scripts /valhalla/scripts
-COPY --from=builder /valhalla/conf /valhalla/conf
-# copy python bindings separately as they need to be in /usr
-COPY --from=builder /usr/lib/python3/dist-packages/valhalla/ /usr/lib/python3/dist-packages/valhalla
+COPY --from=builder /usr/bin/prime_* /usr/bin/
+COPY --from=builder /usr/lib/x86_64-linux-gnu/libprime* /usr/lib/x86_64-linux-gnu/
 
 ENV LD_LIBRARY_PATH="/usr/local/lib:${LD_LIBRARY_PATH}"
 

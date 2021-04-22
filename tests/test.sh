@@ -107,6 +107,7 @@ mod_date_tiles2=$(stat -c %y ${tile_tar})
 
 
 #### Create a new container with same config ####
+echo "#### New container but old data ####"
 docker rm -f valhalla_full
 docker run -d --name valhalla_repeat -p 8002:8002 -v $custom_file_folder:/custom_files -e use_tiles_ignore_pbf=True -e build_elevation=True -e build_admins=True -e build_time_zones=True -e min_x=1.409683 -e min_y=42.423963 -e max_x=1.799011 -e max_y=42.661736 gisops/valhalla:latest
 wait_for_docker
@@ -117,9 +118,12 @@ if [[ $(stat -c %y ${tile_tar}) != $mod_date_tiles2 || $(stat -c %y ${admin_db})
   exit 1
 fi
 
-docker rm -f valhalla_repeat
-
 echo "Final structure:"
-tree -L2 "${custom_file_folder}"
+tree -L 3 -h "${custom_file_folder}"
+
+# cleanup
+docker rm -f valhalla_repeat
+rm ${custom_file_folder}/*.pbf
+rm ${custom_file_folder}/valhalla_tiles.tar
 
 exit 0
