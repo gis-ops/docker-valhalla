@@ -22,7 +22,7 @@ This image aims at being user-friendly and most efficient with your time and res
 
 In the [Dockerhub repository](https://hub.docker.com/r/gisops/valhalla) you'll find the following images/tags:
 
-- stable release tags (e.g. 3.0.9)
+- stable release tags (e.g. 3.1.2)
 - `latest`, updated from Valhalla Github repository every Saturday morning
 
 ## Build the image
