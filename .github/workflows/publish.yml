@@ -1,6 +1,6 @@
 # be aware this won't test the auto-published
 # weekly 'latest' images (generated "manually")
-name: ci tests
+name: publish
 on:
   push:
     branches-ignore:
