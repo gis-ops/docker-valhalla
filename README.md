@@ -18,12 +18,16 @@ This image aims at being user-friendly and most efficient with your time and res
 -   Load local data through volume mapping.
 -   **Supports auto rebuild** on OSM file changes through hash mapping.
 
-## Dockerhub
+## Dockerhub/Github Packages
 
-In the [Dockerhub repository](https://hub.docker.com/r/gisops/valhalla) you'll find the following images/tags:
+**NOTE**, with the recent (08.06.2021) announcement of Docker to close auto-builds, we're moving our images to Github packages. If it's not on Github you'll find an image version still on Dockerhub.
 
-- stable release tags (e.g. 3.1.2)
-- `latest`, updated from Valhalla Github repository every Saturday morning
+~~In the [Dockerhub repository](https://hub.docker.com/r/gisops/valhalla) you'll find the following images/tags:~~
+
+~~- stable release tags (e.g. 3.0.9)~~
+~~- `latest`, updated from Valhalla Github repository every Saturday morning~~
+
+Find the Docker images in our [package registry](https://github.com/orgs/gis-ops/packages?repo_name=docker-valhalla). The general syntax to pull an image from Github is `docker pull docker.pkg.github.com/gis-ops/docker-valhalla/valhalla:latest`.
 
 ## Build the image
 
