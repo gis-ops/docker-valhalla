@@ -27,7 +27,7 @@ This image aims at being user-friendly and most efficient with your time and res
 ~~- stable release tags (e.g. 3.0.9)~~
 ~~- `latest`, updated from Valhalla Github repository every Saturday morning~~
 
-Find the Docker images in our [package registry](https://github.com/orgs/gis-ops/packages?repo_name=docker-valhalla). The general syntax to pull an image from Github is `docker pull docker.pkg.github.com/gis-ops/docker-valhalla/valhalla:latest`.
+Find the Docker images in our [package registry](https://github.com/orgs/gis-ops/packages?repo_name=docker-valhalla). The general syntax to pull an image from Github is `docker pull docker.pkg.github.com/gis-ops/docker-valhalla/valhalla:latest` (you might have to do a [`docker login`](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-docker-registry#authenticating-to-github-packages) before).
 
 ## Build the image
 
