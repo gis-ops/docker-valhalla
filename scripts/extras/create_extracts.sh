@@ -5,13 +5,17 @@
 . /valhalla/scripts/env.sh
 
 CITY_REPO="canada_cities_osmium_extract"
+EXTRACT_REPO="elevation_tiles_from_polygons"
+
+cd ${SCRIPTS_PATH}/extras
 
 printf "### Installing Osmium & Git ###\n"
 
 # install or update osmium & git if not installed already
-apt-get update -y  && apt-get install -y osmium-tool git wget
+apt-get update -y  && apt-get install -y osmium-tool git wget python3-pip
 
-git clone https://github.com/gis-ops/canada_cities_osmium_extract.git ${SCRIPTS_PATH}/extras/${CITY_REPO}
+git clone https://github.com/gis-ops/canada_cities_osmium_extract.git ${CITY_REPO}
+git clone https://github.com/gis-ops/elevation_tiles_from_polygons.git ${EXTRACT_REPO}
 
 printf "\n### Downloading OSM extracts ###\n"
 
@@ -28,6 +32,13 @@ done
 
 printf "\n### Cutting regions ###\n"
 
-osmium extract --config ${SCRIPTS_PATH}/extras/${CITY_REPO}/osmium_extract_config.json --set-bounds ${CUSTOM_FILES}/canada-latest.osm.pbf
+osmium extract --config ${CITY_REPO}/osmium_extract_config.json --set-bounds ${CUSTOM_FILES}/canada-latest.osm.pbf
 
 printf "\n### Downloading elevation ###\n"
+
+python -m venv .venv
+. .venv/bin/activate
+pip install -r ${EXTRACT_REPO}/requirements.txt
+python -m build_elevation ${CITY_REPO}/inputs ${custom_tile_folder}/elevation_data
+
+printf "\n### Finished successfully. ###\n"
