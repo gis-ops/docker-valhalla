@@ -97,17 +97,9 @@ build_config () {
   additional_data_elevation=""
 
   # Adding the desired modules
-  if [[ ${build_elevation} == "True" || ${build_elevation} == "Force" ]]; then
-    additional_data_elevation="--additional-data-elevation $elevation_path"
-  fi
-
-  if [[ ${build_admins} == "True" || ${build_admins} == "Force" ]]; then
-    mjolnir_admin="--mjolnir-admin $admin_db"
-  fi
-
-  if [[ ${build_time_zones} == "True" || ${build_time_zones} == "Force" ]]; then
-    mjolnir_timezone="--mjolnir-timezone $timezone_db"
-  fi
+  additional_data_elevation="--additional-data-elevation $elevation_path"
+  mjolnir_admin="--mjolnir-admin $admin_db"
+  mjolnir_timezone="--mjolnir-timezone $timezone_db"
 
   if ! test -f "${config_file}"; then
     echo ""
