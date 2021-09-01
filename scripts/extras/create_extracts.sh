@@ -36,11 +36,12 @@ osmium extract --config ${CITY_REPO}/osmium_extract_config.json --set-bounds ${C
 
 printf "\n### Downloading elevation ###\n"
 
+cd  ${EXTRACT_REPO}
+
 python -m venv .venv
 . .venv/bin/activate
-pip install -r ${EXTRACT_REPO}/requirements.txt
+pip install -r requirements.txt
 
-cd  ${EXTRACT_REPO}
 python -m build_elevation ../${CITY_REPO}/inputs ${custom_tile_folder}/elevation_data
 
 printf "\n### Finished successfully. ###\n"
