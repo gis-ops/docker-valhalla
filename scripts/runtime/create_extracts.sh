@@ -2,7 +2,7 @@
 
 # Create different extracts with osmium based on an osmium config file
 
-. /valhalla/scripts/env.sh
+. /valhalla/scripts/runtime/env.sh
 
 CITY_REPO="canada_cities_osmium_extract"
 
@@ -26,6 +26,6 @@ done
 
 printf "\n--- Cutting regions ---\n"
 
-osmmium extract --set-bounds --config ${SCRIPTS_PATH}/canadian_cities_osmium_extract/osmium_extract_config.json
+osmmium extract --set-bounds --config ${SCRIPTS_PATH}/${CITY_REPO}/osmium_extract_config.json
 
 printf "\n--- Downloading elevation ---\n"
