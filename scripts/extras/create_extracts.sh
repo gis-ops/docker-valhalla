@@ -42,6 +42,6 @@ python -m venv .venv
 . .venv/bin/activate
 pip install -r requirements.txt
 
-python -m build_elevation ../${CITY_REPO}/inputs ${custom_tile_folder}/elevation_data
+python -m build_elevation ../${CITY_REPO}/inputs ${CUSTOM_FILES}/elevation_data
 
 printf "\n### Finished successfully. ###\n"
