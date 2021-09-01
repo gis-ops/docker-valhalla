@@ -12,7 +12,7 @@ cd ${SCRIPTS_PATH}/extras
 printf "### Installing Osmium & Git ###\n"
 
 # install or update osmium & git if not installed already
-apt-get update -y  && apt-get install -y osmium-tool git wget python3-pip
+apt-get update -y  && apt-get install -y osmium-tool git wget python3-pip python3.8-venv
 
 git clone https://github.com/gis-ops/canada_cities_osmium_extract.git ${CITY_REPO}
 git clone https://github.com/gis-ops/elevation_tiles_from_polygons.git ${EXTRACT_REPO}
@@ -39,6 +39,8 @@ printf "\n### Downloading elevation ###\n"
 python -m venv .venv
 . .venv/bin/activate
 pip install -r ${EXTRACT_REPO}/requirements.txt
-python -m build_elevation ${CITY_REPO}/inputs ${custom_tile_folder}/elevation_data
+
+cd  ${EXTRACT_REPO}
+python -m build_elevation ../${CITY_REPO}/inputs ${custom_tile_folder}/elevation_data
 
 printf "\n### Finished successfully. ###\n"
