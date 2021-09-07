@@ -15,8 +15,8 @@ printf "### Installing Osmium & Git ###\n"
 # install or update osmium & git if not installed already
 apt-get update -y  && apt-get install -y osmium-tool git wget python3-pip python3.8-venv
 
-git clone https://github.com/gis-ops/canada_cities_osmium_extract.git ${CITY_REPO}
-git clone https://github.com/gis-ops/elevation_tiles_from_polygons.git ${EXTRACT_REPO}
+git clone https://github.com/gis-ops/canada_cities_osmium_extract.git ${CITY_REPO} || git -C ${CITY_REPO} pull
+git clone https://github.com/gis-ops/elevation_tiles_from_polygons.git ${EXTRACT_REPO} || git -C ${CITY_REPO} pull
 
 printf "\n### Downloading OSM extracts ###\n"
 
@@ -33,7 +33,7 @@ done
 
 printf "\n### Cutting regions ###\n"
 
-osmium extract --config ${CITY_REPO}/osmium_extract_config.json --set-bounds ${CUSTOM_FILES}/canada-latest.osm.pbf
+osmium extract --config ${CITY_REPO}/osmium_extract_config.json --set-bounds ${CUSTOM_FILES}/canada-latest.osm.pbf || true
 
 rm ${CUSTOM_FILES}/canada-latest.osm.pbf
 
@@ -53,10 +53,12 @@ printf "\n### Downloading elevation ###\n"
 
 cd  ${EXTRACT_REPO}
 
-python -m venv .venv
+if [[ -d .venv ]]; then
+  python -m venv .venv
+fi
 . .venv/bin/activate
 pip install -r requirements.txt
 
-python -m build_elevation ../${CITY_REPO}/inputs ${CUSTOM_FILES}/elevation_data
+python -m build_elevation ../${CITY_REPO}/inputs ${CUSTOM_FILES}/elevation_data -v
 
 printf "\n### Finished successfully. ###\n"
