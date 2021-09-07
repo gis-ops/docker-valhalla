@@ -6,6 +6,7 @@
 
 CITY_REPO="canada_cities_osmium_extract"
 EXTRACT_REPO="elevation_tiles_from_polygons"
+FINAL_OSM_FILE="merged_us_canadian_cities.osm.pbf"
 
 cd ${SCRIPTS_PATH}/extras
 
@@ -33,6 +34,20 @@ done
 printf "\n### Cutting regions ###\n"
 
 osmium extract --config ${CITY_REPO}/osmium_extract_config.json --set-bounds ${CUSTOM_FILES}/canada-latest.osm.pbf
+
+rm ${CUSTOM_FILES}/canada-latest.osm.pbf
+
+printf "\n### Merging all OSM files ###\n"
+
+osmium merge *.osm.pbf -o "${FINAL_OSM_FILE}"
+
+for f in *.osm.pbf
+do
+  if [[ $f -eq $FINAL_OSM_FILE ]]; then
+    continue
+  fi
+  rm $f
+done
 
 printf "\n### Downloading elevation ###\n"
 
