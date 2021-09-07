@@ -39,6 +39,8 @@ rm ${CUSTOM_FILES}/canada-latest.osm.pbf
 
 printf "\n### Merging all OSM files ###\n"
 
+cd  ${CUSTOM_FILES}
+
 osmium merge *.osm.pbf -o "${FINAL_OSM_FILE}"
 
 for f in *.osm.pbf
