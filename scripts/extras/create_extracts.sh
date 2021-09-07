@@ -20,38 +20,36 @@ apt-get update -y  && apt-get install -y osmium-tool git wget python3-pip python
 git clone https://github.com/gis-ops/canada_cities_osmium_extract.git ${CITY_REPO} || git -C ${CITY_REPO} pull
 git clone https://github.com/gis-ops/elevation_tiles_from_polygons.git ${EXTRACT_REPO} || git -C ${CITY_REPO} pull
 
-printf "\n### Downloading OSM extracts ###\n"
+printf "\n### Preparing OSM regions ###\n"
 
-for extract in us-midwest us-northeast us-south canada
-do
-  fp=${CUSTOM_FILES}/${extract}-latest.osm.pbf
-  if [[ ! -f "${fp}" ]]; then
-    echo "Downloading to ${fp}"
-    wget http://download.geofabrik.de/north-america/${extract}-latest.osm.pbf -P ${CUSTOM_FILES} --quiet
-  else
-    echo "${fp} already exists."
-  fi
-done
+if [[ ! -f "${CUSTOM_FILES}/${FINAL_OSM_FILE}" ]]; then
+  for extract in us-midwest us-northeast us-south canada
+  do
+    fp=${CUSTOM_FILES}/${extract}-latest.osm.pbf
+    if [[ ! -f "${fp}" ]]; then
+      echo "Downloading to ${fp}"
+      wget http://download.geofabrik.de/north-america/${extract}-latest.osm.pbf -P ${CUSTOM_FILES} --quiet
+    else
+      echo "${fp} already exists."
+    fi
+  done
 
-printf "\n### Cutting regions ###\n"
+  osmium extract --config ${CITY_REPO}/osmium_extract_config.json --set-bounds ${CUSTOM_FILES}/canada-latest.osm.pbf || true
 
-osmium extract --config ${CITY_REPO}/osmium_extract_config.json --set-bounds ${CUSTOM_FILES}/canada-latest.osm.pbf || true
+  rm ${CUSTOM_FILES}/canada-latest.osm.pbf
 
-rm ${CUSTOM_FILES}/canada-latest.osm.pbf
+  cd  ${CUSTOM_FILES}
 
-printf "\n### Merging all OSM files ###\n"
+  osmium merge *.osm.pbf -o "${FINAL_OSM_FILE}"
 
-cd  ${CUSTOM_FILES}
-
-osmium merge *.osm.pbf -o "${FINAL_OSM_FILE}"
-
-for f in *.osm.pbf
-do
-  if [[ $f -eq $FINAL_OSM_FILE ]]; then
-    continue
-  fi
-  rm $f
-done
+  for f in *.osm.pbf
+  do
+    if [[ "${f}" == "${FINAL_OSM_FILE}" ]]; then
+      continue
+    fi
+    rm $f
+  done
+fi
 
 printf "\n### Downloading elevation ###\n"
 
