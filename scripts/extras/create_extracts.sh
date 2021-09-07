@@ -2,6 +2,8 @@
 
 # Create different extracts with osmium based on an osmium config file
 
+set -e
+
 . /valhalla/scripts/env.sh
 
 CITY_REPO="canada_cities_osmium_extract"
