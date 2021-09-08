@@ -3,7 +3,9 @@
 # create a new runner image from ubuntu:20.04
 # with the previous runner's artifacts
 
-FROM valhalla/valhalla:run-latest as builder
+# valhalla:run_roads_stats is generated from the nn_legal_limit branch of our valhalla:
+# docker build -f ./docker/Dockerfile-run --tag ghcr.io/gis-ops/docker-valhalla/valhalla:run_roads_stats .
+FROM ghcr.io/gis-ops/docker-valhalla/valhalla:run_roads_stats as builder
 MAINTAINER Nils Nolde <nils@gis-ops.com>
 
 # remove some stuff from the original image
