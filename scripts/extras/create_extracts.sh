@@ -53,7 +53,7 @@ fi
 
 printf "\n### Downloading elevation ###\n"
 
-cd  cd ${SCRIPTS_PATH}/extras/${EXTRACT_REPO}
+cd ${SCRIPTS_PATH}/extras/${EXTRACT_REPO}
 
 if [[ -d .venv ]]; then
   python -m venv .venv
