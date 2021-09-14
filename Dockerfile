@@ -21,9 +21,9 @@ RUN apt-get update > /dev/null && \
     apt-get install -y libboost-program-options1.71.0 libluajit-5.1-2 \
       libzmq5 libczmq4 spatialite-bin libprotobuf-lite17 \
       libsqlite3-0 libsqlite3-mod-spatialite libgeos-3.8.0 libcurl4 \
-      python3.8-minimal curl unzip parallel jq spatialite-bin > /dev/null && \
-    ln -s /usr/bin/python3.8 /usr/bin/python && \
-    ln -s /usr/bin/python3.8 /usr/bin/python3
+      python3.8-minimal python3-distutils curl unzip parallel jq spatialite-bin > /dev/null && \
+    ln -sf /usr/bin/python3.8 /usr/bin/python && \
+    ln -sf /usr/bin/python3.8 /usr/bin/python3
 
 COPY --from=builder /usr/local /usr/local
 COPY --from=builder /usr/bin/prime_* /usr/bin/
