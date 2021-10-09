@@ -3,7 +3,7 @@
 # create a new runner image from ubuntu:20.04
 # with the previous runner's artifacts
 
-FROM valhalla/valhalla:run-latest as builder
+FROM valhalla/valhalla:run-3.1.4 as builder
 MAINTAINER Nils Nolde <nils@gis-ops.com>
 
 # remove some stuff from the original image
@@ -21,7 +21,7 @@ RUN apt-get update > /dev/null && \
     apt-get install -y libboost-program-options1.71.0 libluajit-5.1-2 \
       libzmq5 libczmq4 spatialite-bin libprotobuf-lite17 \
       libsqlite3-0 libsqlite3-mod-spatialite libgeos-3.8.0 libcurl4 \
-      python3.8-minimal python3-distutils curl unzip parallel jq spatialite-bin > /dev/null && \
+      python3.8-minimal python3-distutils curl unzip parallel jq > /dev/null && \
     ln -sf /usr/bin/python3.8 /usr/bin/python && \
     ln -sf /usr/bin/python3.8 /usr/bin/python3
 
