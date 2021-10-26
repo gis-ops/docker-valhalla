@@ -214,6 +214,7 @@ hashes=$(hash_counter)
 
 if [[ ${force_rebuild} == "True" ]]; then
   echo "Detected forced rebuild. Deleting old files!"
+  rm -rf "${custom_tile_folder}/valhalla_tiles"
   rm -rf "${custom_tile_folder}/valhalla_tiles.tar"
   rm -rf "${custom_tile_folder}/.file_hashes.txt"
   echo "PBF file Counter: $files_counter"
