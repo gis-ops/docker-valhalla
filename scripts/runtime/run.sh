@@ -44,7 +44,7 @@ if [[ -z "$server_threads" ]]; then
   server_threads=$(expr $(nproc) - 1)
 fi
 
-/bin/bash /valhalla/scripts/configure_valhalla.sh ${SCRIPTS_PATH} ${CONFIG_FILE} ${CUSTOM_FILES} "${tile_urls}" "${min_x}" "${max_x}" "${min_y}" "${max_y}" "${build_elevation}" "${build_admins}" "${build_time_zones}" "${force_rebuild}" "${use_tiles_ignore_pbf}"
+/bin/bash $SCRIPTS_PATH/configure_valhalla.sh ${SCRIPTS_PATH} ${CONFIG_FILE} ${CUSTOM_FILES} "${tile_urls}" "${min_x}" "${max_x}" "${min_y}" "${max_y}" "${build_elevation}" "${build_admins}" "${build_time_zones}" "${force_rebuild}" "${use_tiles_ignore_pbf}"
 
 if test -f ${CUSTOM_CONFIG}; then
   echo "Found config file. Starting valhalla service!"

@@ -115,7 +115,7 @@ build_config () {
     echo "= Build the config file ="
     echo "========================="
 
-    valhalla_build_config --mjolnir-tile-dir ${script_path}/valhalla_tiles --mjolnir-tile-extract ${custom_tile_folder}/valhalla_tiles.tar ${mjolnir_timezone} ${mjolnir_admin} ${additional_data_elevation} --mjolnir-traffic-extract "" --mjolnir-transit-dir "" > ${config_file}
+    valhalla_build_config --mjolnir-tile-dir ${custom_tile_folder}/valhalla_tiles --mjolnir-tile-extract ${custom_tile_folder}/valhalla_tiles.tar ${mjolnir_timezone} ${mjolnir_admin} ${additional_data_elevation} --mjolnir-traffic-extract "" --mjolnir-transit-dir "" > ${config_file}
   else
     echo ""
     echo "=========================="
@@ -270,7 +270,7 @@ echo "= Build the tile files. ="
 echo "========================="
 echo "Running build tiles with: ${config_file} ${files}"
 valhalla_build_tiles -c ${config_file} ${files}	|| exit 1
-find ${script_path}/valhalla_tiles | sort -n | tar cf "${custom_tile_folder}/valhalla_tiles.tar" --no-recursion -T -
+find ${custom_tile_folder}/valhalla_tiles | sort -n | tar cf "${custom_tile_folder}/valhalla_tiles.tar" --no-recursion -T -
 
 echo "Successfully built files: ${files}"
 add_hashes "${files}"
