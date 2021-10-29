@@ -1,7 +1,7 @@
-custom_files
+test/custom_files
 .git
 README.md
 Dockerfile
-*.pbf
-*.tar
-*.sqlite
+**/*.pbf
+**/*.tar
+**/*.sqlite

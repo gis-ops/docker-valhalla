@@ -1,6 +1,4 @@
-# be aware this won't test the auto-published
-# weekly 'latest' images (generated "manually")
-name: publish
+name: publish release
 on:
   push:
     branches:
@@ -24,6 +22,11 @@ jobs:
           registry: docker.pkg.github.com
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Log in to Dockerhub Registry
+        uses: docker/login-action@v1
+        with:
+          username: gisopsbot
+          password: ${{ secrets.DOCKERHUB_SECRET }}
       - name: Build container image
         uses: docker/build-push-action@v2
         with:

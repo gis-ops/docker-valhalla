@@ -1,29 +1,18 @@
 #!/usr/bin/env bash
 
 # create global variables
+config_file=${1}
+custom_folder=${2}
+tile_dir=${3}
+tile_extract=${4}
+
 files=""
 files_counter=0
 do_build="False"
-tile_files=""
-script_path=${1}
-config_file=${2}
-custom_tile_folder=${3}
-tile_urls=${4}
-min_x=${5}
-max_x=${6}
-min_y=${7}
-max_y=${8}
-build_elevation=${9}
-build_admins=${10}
-build_time_zones=${11}
-force_rebuild=${12}
-use_tiles_only=${13}
-
-hash_file="${custom_tile_folder}/.file_hashes.txt"
-
-admin_db="${custom_tile_folder}/admin_data/admins.sqlite"
-timezone_db="${custom_tile_folder}/timezone_data/timezones.sqlite"
-elevation_path="${custom_tile_folder}/elevation_data"
+hash_file="${custom_folder}/.file_hashes.txt"
+admin_db="${custom_folder}/admin_data/admins.sqlite"
+timezone_db="${custom_folder}/timezone_data/timezones.sqlite"
+elevation_path="${custom_folder}/elevation_data"
 
 hash_counter() {
   old_hashes=""
@@ -69,7 +58,7 @@ add_hashes() {
 
 download_files() {
   current_dir=${PWD}
-  cd ${custom_tile_folder}
+  cd ${custom_folder}
   download_counter=0
 
   for url in ${1}; do
@@ -115,7 +104,7 @@ build_config () {
     echo "= Build the config file ="
     echo "========================="
 
-    valhalla_build_config --mjolnir-tile-dir ${custom_tile_folder}/valhalla_tiles --mjolnir-tile-extract ${custom_tile_folder}/valhalla_tiles.tar ${mjolnir_timezone} ${mjolnir_admin} ${additional_data_elevation} --mjolnir-traffic-extract "" --mjolnir-transit-dir "" > ${config_file}
+    valhalla_build_config --mjolnir-tile-dir ${tile_dir} --mjolnir-tile-extract ${tile_extract} ${mjolnir_timezone} ${mjolnir_admin} ${additional_data_elevation} --mjolnir-traffic-extract "" --mjolnir-transit-dir "" > ${config_file}
   else
     echo ""
     echo "=========================="
@@ -145,7 +134,7 @@ build_extras () {
     echo "==========================="
     echo "= Build the timezone data ="
     echo "==========================="
-    valhalla_build_timezones > ${custom_tile_folder}/timezone_data/timezones.sqlite
+    valhalla_build_timezones > ${timezone_db}
   else
     echo "=========================="
   fi
@@ -167,8 +156,8 @@ build_extras () {
 }
 
 # Check for custom file folder and create if it doesn't exist.
-if ! test -d "${custom_tile_folder}"; then
-  mkdir -p ${custom_tile_folder}
+if ! test -d "${custom_folder}"; then
+  mkdir -p ${custom_folder}
 fi
 
 # Same for hashes file
@@ -179,15 +168,15 @@ fi
 # Create build folder if they don't exist
 dirs="timezone_data admin_data elevation_data"
 for d in $dirs; do
-  if ! test -d $custom_tile_folder/$d; then
-    mkdir $custom_tile_folder/$d
+  if ! test -d $custom_folder/$d; then
+    mkdir $custom_folder/$d
   fi
 done
 
 # Check if valhalla_tiles.tar exists
-if test -f "${custom_tile_folder}/valhalla_tiles.tar"; then
-  echo "Valid valhalla_tiles.tar found with use_tiles_ignore_pbf: ${use_tiles_only}!"
-  if [[ ${use_tiles_only} == "True" ]]; then
+if test -f "${tile_extract}" || test -d "${tile_dir}"; then
+  echo "Found valhalla tiles with use_tiles_ignore_pbf: ${use_tiles_ignore_pbf}!"
+  if [[ ${use_tiles_ignore_pbf} == "True" ]]; then
     echo "Jumping directly to the tile loading!"
     build_config
     build_extras
@@ -199,7 +188,7 @@ else
 fi
 
 # Find and add .pbf files to the list of files
-for file in $(ls $custom_tile_folder/*.pbf); do
+for file in $(ls $custom_folder/*.pbf); do
   if [[ ! $(hash_exists ${file}) == *"True" ]] ; then
     echo "Hash not found for: ${file}!"
     do_build="True"
@@ -208,31 +197,35 @@ for file in $(ls $custom_tile_folder/*.pbf); do
   files_counter=$((files_counter + 1))
 done
 
-
-
 hashes=$(hash_counter)
 
 if [[ ${force_rebuild} == "True" ]]; then
   echo "Detected forced rebuild. Deleting old files!"
-  rm -rf "${custom_tile_folder}/valhalla_tiles"
-  rm -rf "${custom_tile_folder}/valhalla_tiles.tar"
-  rm -rf "${custom_tile_folder}/.file_hashes.txt"
+  rm -rf "${tile_dir}"
+  rm -rf "${tile_extract}"
+  rm -rf "${hash_file}"
   echo "PBF file Counter: $files_counter"
   do_build="True"
 fi
 
-if [[ -f "${custom_tile_folder}/valhalla_tiles.tar" && ${do_build} == "False" && ${hashes} == ${files_counter} ]]; then
-  echo "All files have already been build and valhalla_tiles.tar exists and is valid. Starting without new build!"
-  echo "PBF hashes: $hashes"
-  echo "PBF file Counter: $files_counter"
-  echo "Found valhalla_tiles.tar!"
-  build_config
-  build_extras
-  exit 0
+if test -f "${tile_extract}" || test -d "${tile_dir}"; then 
+  if [[ ${do_build} == "False" && ${hashes} == ${files_counter} ]]; then
+    echo "All files have already been built and valhalla tiles exist. Starting without new build!"
+    echo "PBF hashes: $hashes"
+    echo "PBF file Counter: $files_counter"
+    echo "Found valhalla tiles!"
+    build_config
+    build_extras
+    exit 0
+  else
+    echo "New files were detected, rebuilding files: ${files}"
+    do_build="True"
+  fi
 else
   echo "Either valhalla_tiles.tar couldn't be found or new files or file constellations were detected. Rebuilding files: ${files}"
   echo "PBF hashes: $hashes"
   echo "PBF file Counter: $files_counter"
+  do_build="True"
 fi
 
 if [[ ${files_counter} == 0 ]] && [[ ${do_build} == "True" ]]; then
@@ -242,17 +235,15 @@ if [[ ${files_counter} == 0 ]] && [[ ${do_build} == "True" ]]; then
   else
     echo "No local files and no valhalla_tiles.tar found. Downloading links: ${tile_urls}!"
     download_files "${tile_urls}"
-    do_build="True"
   fi
 fi
 
 if [[ ${files_counter} == 0 ]]; then
   # Find and add .pbf files to the list of files that were just downloaded
-  for file in $(ls $custom_tile_folder/*.pbf); do
+  for file in $(ls $custom_folder/*.pbf); do
     echo "${file}"
     if [[ ! $(hash_exists ${file}) == "True" ]]; then
       echo "Hash not found for: ${file}!"
-      do_build="True"
     else
       echo "Hash found for: ${file}"
     fi
@@ -271,7 +262,6 @@ echo "= Build the tile files. ="
 echo "========================="
 echo "Running build tiles with: ${config_file} ${files}"
 valhalla_build_tiles -c ${config_file} ${files}	|| exit 1
-find ${custom_tile_folder}/valhalla_tiles | sort -n | tar cf "${custom_tile_folder}/valhalla_tiles.tar" --no-recursion -T -
 
 echo "Successfully built files: ${files}"
 add_hashes "${files}"

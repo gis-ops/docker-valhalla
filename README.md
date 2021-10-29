@@ -52,9 +52,10 @@ This image respects the following custom environment variables to be passed duri
 - `max_y`: Maximum latitude for elevation tiles, in decimal WGS84, e.g. 18.5
 - `use_tiles_ignore_pbf`: `True` uses a local tile.tar file and skips building. Default `False`.
 - `force_rebuild`: `True` forces a rebuild of the routing tiles. Default `False`.
-- `build_elevation`: `True` builds elevation for the set coordinates. `Force` will do the same, but first delete any existing elevation tiles. Default `False`.
+- `build_elevation`: `True` downloads elevation tiles for the set bounding box. `Force` will do the same, but first delete any existing elevation tiles. Default `False`.
 - `build_admins`: `True` builds the admin db. `Force` will do the same, but first delete the existing db. Default `False`.
 - `build_time_zones`: `True` builds the timezone db. `Force` will do the same, but first delete the existing db. Default `False`.
+- `build_tar` (since `3.1.4`): `True` creates a tarball of the tiles. `Force` will do the same, but first delete the existing tarball. Default `True`.
 - `server_threads`: How many threads `valhalla_service` will run with. Default is 1 thread less than the value of `nproc`.
 
 ## Container recipes
