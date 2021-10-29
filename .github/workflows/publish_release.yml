@@ -33,3 +33,4 @@ jobs:
           push: true
           tags: |
             docker.pkg.github.com/${{ github.repository }}/valhalla:${{ steps.extract_branch.outputs.branch }}
+            gisops/valhalla:${{ steps.extract_branch.outputs.branch }}

@@ -31,3 +31,4 @@ jobs:
           push: true
           tags: |
             docker.pkg.github.com/${{ github.repository }}/valhalla:latest
+            gisops/valhalla:latest
