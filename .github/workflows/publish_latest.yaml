@@ -30,4 +30,4 @@ jobs:
           context: .
           push: true
           tags: |
-            docker.pkg.github.com/${{ github.repository }}/valhalla:lastest
+            docker.pkg.github.com/${{ github.repository }}/valhalla:latest
