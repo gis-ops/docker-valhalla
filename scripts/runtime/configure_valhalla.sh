@@ -151,7 +151,7 @@ build_extras () {
     echo "==========================="
     echo "= Download the elevation tiles ="
     echo "==========================="
-    valhalla_build_elevation ${min_x} ${max_x} ${min_y} ${max_y} $elevation_path
+    valhalla_build_elevation -b ${min_x},${min_y},${max_x},${max_y} -c $config_file
   fi
 }
 
