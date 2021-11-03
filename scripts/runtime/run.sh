@@ -80,6 +80,6 @@ if [[ $1 == "build_tiles" ]]; then
 elif [[ $1 == "tar_tiles" ]]; then
   build_tar
 else
-  echo "Unrecognized CMD: '${$1}'"
+  echo "Unrecognized CMD: '$1'"
   exit 1
 fi
