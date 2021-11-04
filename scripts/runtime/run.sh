@@ -53,7 +53,7 @@ if [[ -z "$use_tiles_ignore_pbf" ]]; then
 fi
 
 if [[ -z "$server_threads" ]]; then
-  server_threads=$(expr $(nproc) - 1)
+  server_threads=$(nproc)
 fi
 
 
