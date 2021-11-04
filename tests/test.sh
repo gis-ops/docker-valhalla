@@ -49,7 +49,7 @@ cp ${ANDORRA} ${custom_file_folder}
 
 #### FULL BUILD ####
 echo "#### Full build test, no extract ####"
-docker run -d --name valhalla_full -p 8002:8002 -v $custom_file_folder:/custom_files -e use_tiles_ignore_pbf=False -e build_elevation=True -e build_admins=True -e build_time_zones=True -e min_x=1.409683 -e min_y=42.423963 -e max_x=1.799011 -e max_y=42.661736 -e build_tar=False gisops/valhalla:latest
+docker run -d --name valhalla_full -p 8002:8002 -v $custom_file_folder:/custom_files -e use_tiles_ignore_pbf=False -e build_elevation=True -e build_admins=True -e build_time_zones=True -e build_tar=False gisops/valhalla:latest
 wait_for_docker
 
 # Make sure all files are there!

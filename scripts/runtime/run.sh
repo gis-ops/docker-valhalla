@@ -7,7 +7,7 @@ CONFIG_FILE="${CUSTOM_FILES}/valhalla.json"
 TILE_DIR="${CUSTOM_FILES}/valhalla_tiles"
 TILE_TAR="${CUSTOM_FILES}/valhalla_tiles.tar"
 
-build_tar() {
+do_build_tar() {
 
   if ! test -d $TILE_DIR; then
     echo "No tiles found. Did you forget to build tiles?"
@@ -32,7 +32,7 @@ else
     echo "========================================================================="
     echo "= No valid bounding box or elevation parameter set. Skipping elevation! ="
     echo "========================================================================="
-    build_elevation="False"
+    build_elevation="True"
   fi
 fi
 
@@ -63,7 +63,7 @@ if [[ $1 == "build_tiles" ]]; then
   /bin/bash /valhalla/scripts/configure_valhalla.sh ${CONFIG_FILE} ${CUSTOM_FILES} ${TILE_DIR} ${TILE_TAR}
   # tar tiles unless not wanted
   if [[ "$build_tar" == "True" ]]; then
-    build_tar
+    do_build_tar
   else
     echo "Skipping tar building. Expect degraded performance while using Valhalla."
   fi
@@ -78,7 +78,7 @@ if [[ $1 == "build_tiles" ]]; then
   # Keep docker running easy
   exec "$@"
 elif [[ $1 == "tar_tiles" ]]; then
-  build_tar
+  do_build_tar
 else
   echo "Unrecognized CMD: '$1'"
   exit 1

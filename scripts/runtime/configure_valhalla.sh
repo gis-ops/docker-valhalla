@@ -242,7 +242,7 @@ build_dbs
 
 # Finally build the tiles
 if [[ ${build_elevation} == "True" || ${build_elevation} == "Force" ]]; then
-  if [[ ${build_elevation} == "Force" && test -d $elevation_path ]]; then
+  if [[ ${build_elevation} == "Force" && -d $elevation_path ]]; then
     echo "Rebuilding elevation tiles"
     rm -rf $elevation_path
   fi
@@ -261,13 +261,13 @@ if [[ ${build_elevation} == "True" || ${build_elevation} == "Force" ]]; then
   echo "================================="
   echo "= Download the elevation tiles ="
   echo "================================="
-  valhalla_build_elevation -b ${min_x},${min_y},${max_x},${max_y} -c $config_file || exit 1
+  valhalla_build_elevation --from-tiles --decompress -c $config_file || exit 1
 
   echo ""
   echo "======================================"
   echo "= Enhancing the graph with elevation ="
   echo "======================================"
-  valhalla_build_tiles 
+  valhalla_build_tiles -c ${config_file} -s enhance ${files} || exit 1
 else
   echo ""
   echo "========================="
@@ -275,7 +275,7 @@ else
   echo "========================="
   echo "Running build tiles with: ${config_file} ${files}"
 
-  valhalla_build_tiles -c ${config_file} -s enhance ${files} || exit 1
+  valhalla_build_tiles -c ${config_file} ${files} || exit 1
 fi
 
 echo "Successfully built files: ${files}"
