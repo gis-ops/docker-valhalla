@@ -113,7 +113,7 @@ build_config () {
   fi
 }
 
-build_extras () {
+build_dbs () {
   # Only build the dbs if forced or the files don't exist
 
   if [[ ${build_admins} == "True" && ! -f $admin_db ]] || [[ ${build_admins} == "Force" ]]; then
@@ -137,21 +137,6 @@ build_extras () {
     valhalla_build_timezones > ${timezone_db}
   else
     echo "=========================="
-  fi
-
-
-  if [[ ${build_elevation} == "True" || ${build_elevation} == "Force" ]]; then
-    if [[ ${force_rebuild_elevation} == "Force" ]]; then
-      echo "Rebuilding elevation tiles"
-      rm -rf $elevation_path
-      mkdir -p $elevation_path
-    fi
-    # Build the elevation data
-    echo ""
-    echo "==========================="
-    echo "= Download the elevation tiles ="
-    echo "==========================="
-    valhalla_build_elevation -b ${min_x},${min_y},${max_x},${max_y} -c $config_file
   fi
 }
 
@@ -179,7 +164,7 @@ if test -f "${tile_extract}" || test -d "${tile_dir}"; then
   if [[ ${use_tiles_ignore_pbf} == "True" ]]; then
     echo "Jumping directly to the tile loading!"
     build_config
-    build_extras
+    build_dbs
     exit 0
   fi
 else
@@ -215,7 +200,7 @@ if test -f "${tile_extract}" || test -d "${tile_dir}"; then
     echo "PBF file Counter: $files_counter"
     echo "Found valhalla tiles!"
     build_config
-    build_extras
+    build_dbs
     exit 0
   else
     echo "New files were detected, rebuilding files: ${files}"
@@ -253,15 +238,45 @@ if [[ ${files_counter} == 0 ]]; then
 fi
 
 build_config
-build_extras
+build_dbs
 
 # Finally build the tiles
-echo ""
-echo "========================="
-echo "= Build the tile files. ="
-echo "========================="
-echo "Running build tiles with: ${config_file} ${files}"
-valhalla_build_tiles -c ${config_file} ${files}	|| exit 1
+if [[ ${build_elevation} == "True" || ${build_elevation} == "Force" ]]; then
+  if [[ ${build_elevation} == "Force" && -d $elevation_path ]]; then
+    echo "Rebuilding elevation tiles"
+    rm -rf $elevation_path
+  fi
+
+  # if we should build with elevation we need to build the tiles in stages
+
+  echo ""
+  echo "========================="
+  echo "= Build the initial graph. ="
+  echo "========================="
+
+  valhalla_build_tiles -c ${config_file} -e build ${files} || exit 1
+
+  # Build the elevation data
+  echo ""
+  echo "================================="
+  echo "= Download the elevation tiles ="
+  echo "================================="
+  valhalla_build_elevation --from-tiles --decompress -c $config_file || exit 1
+
+  echo ""
+  echo "======================================"
+  echo "= Enhancing the graph with elevation ="
+  echo "======================================"
+  valhalla_build_tiles -c ${config_file} -s enhance ${files} || exit 1
+else
+  echo ""
+  echo "========================="
+  echo "= Build the tile files. ="
+  echo "========================="
+  echo "Running build tiles with: ${config_file} ${files}"
+
+  valhalla_build_tiles -c ${config_file} ${files} || exit 1
+fi
 
 echo "Successfully built files: ${files}"
 add_hashes "${files}"

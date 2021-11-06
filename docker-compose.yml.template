@@ -15,14 +15,9 @@ services:
     environment:
       # Auto-download PBFs from Geofabrik
       #- tile_urls=https://download.geofabrik.de/europe/andorra-latest.osm.pbf https://download.geofabrik.de/europe/albania-latest.osm.pbf
-      # Get correct bounding box from e.g. https://boundingbox.klokantech.com/
-      #- min_x=18 # -> Albania | -180 -> World
-      #- min_y=38 # -> Albania | -90  -> World
-      #- max_x=22 # -> Albania |  180 -> World
-      #- max_y=43 # -> Albania |  90  -> World
-      - server_threads=2  # determines how many threads will be used to run valhalla
+      - server_threads=2  # determines how many threads will be used to run the valhalla server
       - use_tiles_ignore_pbf=True  # load existing valhalla_tiles.tar directly
-      - build_elevation=False  # build elevation with "True" or "Force", needs valid coordinates min_x, min_y etc
+      - build_elevation=False  # build elevation with "True" or "Force": will download only the elevation for areas covered by the graph tiles
       - build_admins=False  # build admins db with "True" or "Force"
       - build_time_zones=False  # build timezone db with "True" or "Force"
       - build_tar=True  # build an indexed tar file from the tile_dir for faster graph loading times

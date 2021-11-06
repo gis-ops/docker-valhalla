@@ -45,18 +45,14 @@ docker build -t gisops/valhalla .
 
 This image respects the following custom environment variables to be passed during container startup. Note, all variables have a default:
 
-- `tile_urls`: Add as many (space-separated) URLs as you like, e.g. https://download.geofabrik.de/europe/andorra-latest.osm.pbf http://download.geofabrik.de/europe/faroe-islands-latest.osm.pbf. Default `""`.
-- `min_x`: Minimum longitude for elevation tiles, in decimal WGS84, e.g. 18.5
-- `min_y`: Minimum latitude for elevation tiles, in decimal WGS84, e.g. 18.5
-- `max_x`: Maximum longitude for elevation tiles, in decimal WGS84, e.g. 18.5
-- `max_y`: Maximum latitude for elevation tiles, in decimal WGS84, e.g. 18.5
+- `tile_urls`: Add as many (space-separated) URLs as you like, e.g. https://download.geofabrik.de/europe/andorra-latest.osm.pbf 
 - `use_tiles_ignore_pbf`: `True` uses a local tile.tar file and skips building. Default `False`.
 - `force_rebuild`: `True` forces a rebuild of the routing tiles. Default `False`.
-- `build_elevation`: `True` downloads elevation tiles for the set bounding box. `Force` will do the same, but first delete any existing elevation tiles. Default `False`.
-- `build_admins`: `True` builds the admin db. `Force` will do the same, but first delete the existing db. Default `False`.
-- `build_time_zones`: `True` builds the timezone db. `Force` will do the same, but first delete the existing db. Default `False`.
-- `build_tar` (since 29.10.2021/v`3.1.5`): `True` creates a tarball of the tiles. `Force` will do the same, but first delete the existing tarball. Default `True`.
-- `server_threads`: How many threads `valhalla_service` will run with. Default is 1 thread less than the value of `nproc`.
+- `build_elevation`: `True` downloads elevation tiles which are covering the routing graph. `Force` will do the same, but first delete any existing elevation tiles. Default `False`.
+- `build_admins`: `True` builds the admin db needed for things like border-crossing penalties and detailed routing responses. `Force` will do the same, but first delete the existing db. Default `False`.
+- `build_time_zones`: `True` builds the timezone db which is needed for time-dependent routing. `Force` will do the same, but first delete the existing db. Default `False`.
+- `build_tar` (since 29.10.2021/v`3.1.5`): `True` creates a tarball of the tiles including an index which allows for extremely faster graph loading after reboots. `Force` will do the same, but first delete the existing tarball. Default `True`.
+- `server_threads`: How many threads `valhalla_service` will run with. Default is the value of `nproc`.
 
 ## Container recipes
 
