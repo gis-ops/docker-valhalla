@@ -7,6 +7,8 @@ CONFIG_FILE="${CUSTOM_FILES}/valhalla.json"
 TILE_DIR="${CUSTOM_FILES}/valhalla_tiles"
 TILE_TAR="${CUSTOM_FILES}/valhalla_tiles.tar"
 
+build_tar=${build_tar:=True}
+
 do_build_tar() {
 
   if ! test -d $TILE_DIR; then
