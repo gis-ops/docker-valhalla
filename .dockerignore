@@ -1,7 +1,6 @@
 test/custom_files
 .git
 README.md
-Dockerfile
 **/*.pbf
 **/*.tar
 **/*.sqlite

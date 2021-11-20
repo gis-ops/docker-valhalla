@@ -8,10 +8,10 @@ services:
     #build:
     #  context: .
     #  args:
-    #    - VALHALLA_RELEASE=master
-    #    - PRIMESERVER_RELEASE=master
+    #    - USER_ID=1000
+    #    - GROUP_ID=1000
     volumes:
-      - ./custom_files/:/custom_files
+      - ./custom_files/:/valhalla_files
     environment:
       # Auto-download PBFs from Geofabrik
       #- tile_urls=https://download.geofabrik.de/europe/andorra-latest.osm.pbf https://download.geofabrik.de/europe/albania-latest.osm.pbf

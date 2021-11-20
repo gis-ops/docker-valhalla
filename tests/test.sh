@@ -11,13 +11,19 @@ LIECHTENSTEIN="$PWD/tests/liechtenstein-latest.osm.pbf"
 
 # keep requesting a route until it succeeds
 wait_for_docker() {
-  while true; do
+  count=0
+  max=40
+  while ! [[ $count == $max ]]; do
     eval $route_request > /dev/null
     if [[ 0 -eq $? ]]; then
      return
     fi
     sleep 1
+    count=$(($count + 1))
   done
+
+  docker logs valhalla_full
+  exit 1
 }
 
 last_mod_tiles() {

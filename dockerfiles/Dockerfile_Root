@@ -1,0 +1,13 @@
+FROM gisops/valhalla:latest_base as runner
+MAINTAINER Nils Nolde <nils@gis-ops.com>
+
+# this image will create all files & folders as root
+
+COPY scripts/. /valhalla/scripts
+
+WORKDIR /custom_files
+
+# Expose the necessary port
+EXPOSE 8002
+ENTRYPOINT ["/valhalla/scripts/run.sh"]
+CMD ["build_tiles"]

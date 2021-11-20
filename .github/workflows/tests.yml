@@ -23,9 +23,14 @@ jobs:
       - uses: actions/checkout@v2
       - name: Build image
         run: |
+          uid=$(id --user)
+          gid=$(id --group)
+          echo "Running one bare build and one with UID ${uid} and GID {$gid}"
           docker build -t gisops/valhalla:latest .
+          docker build -t gisops/valhalla:latest --build-arg USER_ID=${uid} --build-arg GROUP_ID=${gid} .
       - name: Test image
         run : |
+          echo "Running with UID $(id --user) and GID $(id --group)"
           sudo apt-get update > /dev/null
           sudo apt-get install -y moreutils tree > /dev/null
-          sudo /bin/bash -c "./tests/test.sh"
+          /bin/bash -c "./tests/test.sh"

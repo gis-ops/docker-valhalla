@@ -5,7 +5,7 @@
 A hyper-flexible Docker image for the excellent [Valhalla](https://github.com/valhalla/valhalla) routing framework.
 
 ```bash
-docker run -dt --name valhalla_gis-ops -p 8002:8002 -v $PWD/custom_files:/custom_files gisops/valhalla:latest
+docker run -dt --name valhalla_gis-ops -p 8002:8002 -v $PWD/custom_files:/valhalla_files gisops/valhalla:latest
 ```
 
 This image aims at being user-friendly and most efficient with your time and resources. Once built, you can easily change Valhalla's configuration, the underlying OSM data graphs are built from, accompanying data (like Admin Areas, elevation tiles) or even pre-built graph tiles. Upon `docker restart <container>` those changes are taken into account via **hashed files**, and, if necessary, new graph tiles will be built automatically.
@@ -17,6 +17,7 @@ This image aims at being user-friendly and most efficient with your time and res
 -   Load and build from **multiple URLs** pointing to valid pbf files.
 -   Load local data through volume mapping.
 -   **Supports auto rebuild** on OSM file changes through hash mapping.
+- 	**new**: supports advanced user management to avoid sudo access to host-shared folders and files, see [notes on user management](#notes-on-user-management)
 
 ## Dockerhub/Github Packages
 
@@ -31,9 +32,12 @@ Find the Docker images in our [package registry](https://github.com/orgs/gis-ops
 
 ## Build the image
 
-If you want to build the image yourself, be aware that you might need to adapt the base image in the `Dockerfile` to reflect the version of Valhalla you'd like to build. You can find the tags of the `valhalla/valhalla:run-*` images here: https://hub.docker.com/r/valhalla/valhalla/tags.
+If you want to build the image yourself, be aware that you might need to adapt the base image in the `Dockerfile` to reflect the version of Valhalla you'd like to build. You can find the tags of the `valhalla/valhalla:run-*` images here: https://hub.docker.com/r/valhalla/valhalla/tags. On top of the Valhalla base image we support the following build arguments (see [notes on user management](#notes-on-user-management)):
 
-**Note**, that this is only valid down to `3.1.0`, before the building scheme was completely different. Please contact enquiry@gis-ops.com if you need access to previous Valhalla versions via Docker.
+- `USER_ID`: specify the user UID of the container-internal `valhalla` user. Either leave this blank or, most usually, specify your current user's UID.
+- `GROUP_ID`: specify the group UID of the container-internal `valhalla` user. Either leave this blank or, most usually, specify the group's UID whose members you want to have write access to the container-generated files.
+
+**Note**, before Valhalla version `3.1.0` the building scheme was completely different. Please contact enquiry@gis-ops.com if you need access to previous Valhalla versions via Docker.
 
 Then it's a simple
 
@@ -61,10 +65,10 @@ For the following instructions to work, you'll need to have the image locally av
 Start a background container from that image:
 
 ```bash
-docker run -dt -v $PWD/custom_files:/custom_files -p 8002:8002 --name valhalla gisops/valhalla:latest
+docker run -dt -v $PWD/custom_files:/valhalla_files -p 8002:8002 --name valhalla gisops/valhalla:latest
 ```
 
-The important part here is, that you map a volume from your host machine to the container's **`/custom_files`**. The container will dump all relevant Valhalla files to that directory.
+The important part here is, that you map a volume from your host machine to the container's **`/valhalla_files`**. The container will dump all relevant Valhalla files to that directory.
 
 At this point Valhalla is running, but there is no graph tiles yet. Follow the steps below to customize your Valhalla instance in a heartbeat.
 
@@ -89,14 +93,22 @@ If you need to customize Valhalla's configuration to e.g. increase the allowed m
 
 #### Run Valhalla with pre-built tiles
 
-In the case where you have a pre-built `valhalla_tiles.tar` package from another Valhalla instance, you can also dump that to `custom_files/` and they're loaded upon container restart if you set the following environment variables: `use_tiles_ignore_pbf=True`, `force_rebuild=False`. Also, don't forget to set the md5 sum for your `valhalla_tiles.tar` in `.file_hashes.txt`.
+In the case where you have a pre-built `valhalla_tiles.tar` package from another Valhalla instance, you can also dump that to `/valhalla_files/` and they're loaded upon container restart if you set the following environment variables: `use_tiles_ignore_pbf=True`, `force_rebuild=False`. Also, don't forget to set the md5 sum for your `valhalla_tiles.tar` in `.file_hashes.txt`.
+
+## Notes on user management
+
+Since 18.11.2021 the `latest` image (and supposedly the `3.1.5` tagged image) supports advanced user management. During the build one can pass `USER_ID` and `GROUP_ID` as build arguments. These will be used to create the container-internal user `valhalla`. Practically, this means if you build the image with your current user's UID (usually 1000 if you're the only Linux user) you can edit all the files and folders which the Valhalla container creates in the volume you share (the config file, routing tiles etc.). By specifying a `GROUP_ID` you can do the same but to groups of users which can be very useful in some deployment scenarios.
+
+By default the images published on Dockerhub and Github Packages, and the Dockerfile, have the `USER_ID` & `GROUP_ID` of 1000. So if you create a container based on those images and your user's UID happens to be 1000 too, you're lucky. If not, you'll need to either build your own image from this repository with the correct build arguments or live with the fact that you can only edit the newly created Valhalla files with `sudo` (default behavior before). **Note** in the latter case the host directoy should either have 0775 as permission bits or should not exist so docker can create it.
+
+On a side note, this finally eliminates some security concerns and puts a user in a much more flexible position. Though running a Valhalla container as root internally and exposing a host-shared volume is normally not a problem as Valhalla itself has very little attack surface. Still..
 
 ## Tests
 
-If you want to verify that the image is working correctly, there's a small test script in `./tests`. **Note**, it requires `sudo` since it touches a few things generated by the container's `root` user (no worries, it won't break your system):
+If you want to verify that the image is working correctly, there's a small test script in `./tests`. **Note**, it might require `sudo` if your user's ID is not 1000, since it touches a few things generated by the container's `valhalla` user, see the [notes on user management](#notes-on-user-management):
 
 ```shell script
-sudo ./tests/test.sh
+./tests/test.sh
 ```
 
 ## Acknowledgements
