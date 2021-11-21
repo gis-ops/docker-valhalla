@@ -8,8 +8,8 @@ services:
     #build:
     #  context: .
     #  args:
-    #    - USER_ID=1000
-    #    - GROUP_ID=1000
+    #    - VALHALLA_UID=1000
+    #    - VALHALLA_GID=1000
     volumes:
       - ./custom_files/:/valhalla_files
     environment:

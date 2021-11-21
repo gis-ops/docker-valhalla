@@ -1,5 +1,7 @@
 set -u
 
+valhalla_image=$1
+
 custom_file_folder="$PWD/tests/custom_files"
 admin_db="${custom_file_folder}/admin_data/admins.sqlite"
 timezone_db="${custom_file_folder}/timezone_data/timezones.sqlite"
@@ -55,7 +57,7 @@ cp ${ANDORRA} ${custom_file_folder}
 
 #### FULL BUILD ####
 echo "#### Full build test, no extract ####"
-docker run -d --name valhalla_full -p 8002:8002 -v $custom_file_folder:/custom_files -e use_tiles_ignore_pbf=False -e build_elevation=True -e build_admins=True -e build_time_zones=True -e build_tar=False gisops/valhalla:latest
+docker run -d --name valhalla_full -p 8002:8002 -v $custom_file_folder:/custom_files -e use_tiles_ignore_pbf=False -e build_elevation=True -e build_admins=True -e build_time_zones=True -e build_tar=False ${valhalla_image}
 wait_for_docker
 
 # Make sure all files are there!
@@ -124,7 +126,7 @@ mod_date_tiles2=$(last_mod_tiles)
 #### Create a tar ball ####
 echo "#### Create tar ball only ####"
 
-docker run --rm --name valhalla_tar -v ${custom_file_folder}:/custom_files gisops/valhalla:latest tar_tiles
+docker run --rm --name valhalla_tar -v ${custom_file_folder}:/custom_files ${valhalla_image} tar_tiles
 if [[ ! -f ${tile_tar} ]]; then
   echo "tar_tiles CMD didn't work"
   exit 1
@@ -135,7 +137,7 @@ fi
 #### Create a new container with same config ####
 echo "#### New container but old data, also build the tar by default and check if it exists ####"
 docker rm -f valhalla_full
-docker run -d --name valhalla_repeat -p 8002:8002 -v $custom_file_folder:/custom_files -e use_tiles_ignore_pbf=True -e build_elevation=True -e build_admins=True -e build_time_zones=True -e min_x=1.409683 -e min_y=42.423963 -e max_x=1.799011 -e max_y=42.661736 gisops/valhalla:latest
+docker run -d --name valhalla_repeat -p 8002:8002 -v $custom_file_folder:/custom_files -e use_tiles_ignore_pbf=True -e build_elevation=True -e build_admins=True -e build_time_zones=True -e min_x=1.409683 -e min_y=42.423963 -e max_x=1.799011 -e max_y=42.661736 ${valhalla_image}
 wait_for_docker
 
 if [[ ! -f ${tile_tar} ]]; then

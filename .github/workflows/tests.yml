@@ -27,10 +27,12 @@ jobs:
           gid=$(id --group)
           echo "Running one bare build and one with UID ${uid} and GID {$gid}"
           docker build -t gisops/valhalla:latest .
-          docker build -t gisops/valhalla:latest --build-arg USER_ID=${uid} --build-arg GROUP_ID=${gid} .
+          docker build -t gisops/valhalla:latest_user_stuff --build-arg VALHALLA_UID=${uid} --build-arg VALHALLA_GID=${gid} .
       - name: Test image
         run : |
           echo "Running with UID $(id --user) and GID $(id --group)"
           sudo apt-get update > /dev/null
           sudo apt-get install -y moreutils tree > /dev/null
-          /bin/bash -c "./tests/test.sh"
+          sudo /bin/bash -c "./tests/test.sh gisops/valhalla:latest"
+          mkdir ${PWD}/tests/custom_files
+          /bin/bash -c "./tests/test.sh gisops/valhalla:latest_user_stuff"
