@@ -7,7 +7,7 @@ set -e
 
 # we need to either run commands that create files with or without sudo (depends if the image was built with a UID/GID other than 0)
 run_cmd() {
-  if [[ ${dir_owner} == "root" ]]; then
+  if [[ "${VALHALLA_UID}" == "59999" ]] && [[ "${VALHALLA_GID}" == "59999" ]]; then
     # -E preserves the env vars
     sudo -E $1 || exit 1
   else
@@ -31,8 +31,7 @@ dir_owner=$(stat --format '%U' "${CUSTOM_FILES}")
 echo ""
 echo "INFO: Running container with user $(whoami) UID $(id --user) and GID $(id --group)."
 if [[ ${dir_owner} == "root" ]]; then
-  echo "WARNING: User $(whoami) is running with sudo privileges. Try building the image with a host user's UID & GID."
-  if [[ "${VALHALLA_UID}" != 0 ]] || [[ "${VALHALLA_GID}" != 0 ]]; then
+  if [[ "${VALHALLA_UID}" != "59999" ]] || [[ "${VALHALLA_GID}" != "59999" ]]; then
     echo "ERROR: If you run with custom UID or GID you have to create the mapped directory to the container's /custom_files manually before starting the image"
     exit 1
   fi
@@ -55,9 +54,16 @@ if [[ $1 == "build_tiles" ]]; then
     echo "WARNING: Skipping tar building. Expect degraded performance while using Valhalla."
   fi
 
-  # set 775/664 permissions on all created files
-  find "${CUSTOM_FILES}" -type d -exec chmod 775 {} \;
-  find "${CUSTOM_FILES}" -type f -exec chmod 664 {} \;
+  # lazy workaround, not sure what's wrong when using the run_cmd function..
+  if [[ "${VALHALLA_UID}" == "59999" ]] && [[ "${VALHALLA_GID}" == "59999" ]]; then
+    echo "WARNING: User $(whoami) is running with sudo privileges. Try building the image with a host user's UID & GID."
+    # set 775/664 permissions on all created files
+    sudo find "${CUSTOM_FILES}" -type d -exec chmod 775 {} \;
+    sudo find "${CUSTOM_FILES}" -type f -exec chmod 664 {} \;
+  else
+    find "${CUSTOM_FILES}" -type d -exec chmod 775 {} \;
+    find "${CUSTOM_FILES}" -type f -exec chmod 664 {} \;
+  fi
 
   if test -f ${CONFIG_FILE}; then
     echo "INFO: Found config file. Starting valhalla service!"

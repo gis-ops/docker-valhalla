@@ -35,14 +35,17 @@ ENV use_tiles_ignore_pbf=True
 ENV build_tar=True
 
 # what this does:
-# if the docker user specified a UID/GID (other than 0, would be a ludicrous instruction anyways) in the image build, we will use that to create the valhalla linux user in the image. that ensures that the docker user can edit the created files on the host without sudo and with 664/775 permissions, so that users of that group can also write. the default is to give the valhalla user passwordless sudo. that also means that all commands creating files in the entrypoint script need to be executed with sudo to support both scenarios.
+# if the docker user specified a UID/GID (other than 0, would be a ludicrous instruction anyways) in the image build, we will use that to create the valhalla linux user in the image. that ensures that the docker user can edit the created files on the host without sudo and with 664/775 permissions, so that users of that group can also write. the default is to give the valhalla user passwordless sudo. that also means that all commands creating files in the entrypoint script need to be executed with sudo when built with defaults..
 # based on https://jtreminio.com/blog/running-docker-containers-as-current-host-user/, but this use case needed a more customized approach
 
-ARG VALHALLA_UID=0
-ARG VALHALLA_GID=0
+# with that we can properly test if the default was used or not
+ARG VALHALLA_UID=59999
+ARG VALHALLA_GID=59999
 
-RUN mkdir /custom_files && \
-  if [ $VALHALLA_UID != 0 ] || [ $VALHALLA_GID != 0 ]; then groupadd -g ${VALHALLA_GID} valhalla && useradd -lmu ${VALHALLA_UID} -g valhalla valhalla && chmod 0775 custom_files && chown valhalla:valhalla /custom_files; else groupadd -g 1000 valhalla && useradd -lmu 1000 -g valhalla valhalla && usermod -aG sudo valhalla && echo "ALL            ALL = (ALL) NOPASSWD: ALL" >> /etc/sudoers; fi
+RUN groupadd -g ${VALHALLA_GID} valhalla && \
+  useradd -lmu ${VALHALLA_UID} -g valhalla valhalla && \
+  mkdir /custom_files && \
+  if [ $VALHALLA_UID != 59999 ] || [ $VALHALLA_GID != 59999 ]; then chmod 0775 custom_files && chown valhalla:valhalla /custom_files; else usermod -aG sudo valhalla && echo "ALL            ALL = (ALL) NOPASSWD: ALL" >> /etc/sudoers; fi
 
 ENV VALHALLA_UID=${VALHALLA_UID}
 ENV VALHALLA_GID=${VALHALLA_GID}

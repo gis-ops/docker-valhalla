@@ -5,7 +5,6 @@ valhalla_image=$1
 custom_file_folder="$PWD/tests/custom_files"
 admin_db="${custom_file_folder}/admin_data/admins.sqlite"
 timezone_db="${custom_file_folder}/timezone_data/timezones.sqlite"
-elevation_path="${custom_file_folder}/elevation_data"
 tile_dir="${custom_file_folder}/valhalla_tiles"
 tile_tar="${custom_file_folder}/valhalla_tiles.tar"
 ANDORRA="$PWD/tests/andorra-latest.osm.pbf"
@@ -14,7 +13,7 @@ LIECHTENSTEIN="$PWD/tests/liechtenstein-latest.osm.pbf"
 # keep requesting a route until it succeeds
 wait_for_docker() {
   count=0
-  max=40
+  max=60
   while ! [[ $count == $max ]]; do
     eval $route_request > /dev/null
     if [[ 0 -eq $? ]]; then
@@ -24,7 +23,8 @@ wait_for_docker() {
     count=$(($count + 1))
   done
 
-  docker logs valhalla_full
+  echo "max count reached"
+  docker logs --tail 50 valhalla_full
   exit 1
 }
 
@@ -57,7 +57,7 @@ cp ${ANDORRA} ${custom_file_folder}
 
 #### FULL BUILD ####
 echo "#### Full build test, no extract ####"
-docker run -d --name valhalla_full -p 8002:8002 -v $custom_file_folder:/custom_files -e use_tiles_ignore_pbf=False -e build_elevation=True -e build_admins=True -e build_time_zones=True -e build_tar=False ${valhalla_image}
+docker run -d --name valhalla_full -p 8002:8002 -v $custom_file_folder:/custom_files -e use_tiles_ignore_pbf=False -e build_elevation=False -e build_admins=True -e build_time_zones=True -e build_tar=False ${valhalla_image}
 wait_for_docker
 
 # Make sure all files are there!
@@ -67,10 +67,6 @@ for f in ${admin_db} ${timezone_db}; do
     exit 1
   fi
 done
-if [[ ! $(ls ${elevation_path}) ]]; then
-  echo "Empty elevation dir"
-  exit 1
-fi
 
 eval $route_request > /dev/null
 
@@ -137,7 +133,7 @@ fi
 #### Create a new container with same config ####
 echo "#### New container but old data, also build the tar by default and check if it exists ####"
 docker rm -f valhalla_full
-docker run -d --name valhalla_repeat -p 8002:8002 -v $custom_file_folder:/custom_files -e use_tiles_ignore_pbf=True -e build_elevation=True -e build_admins=True -e build_time_zones=True -e min_x=1.409683 -e min_y=42.423963 -e max_x=1.799011 -e max_y=42.661736 ${valhalla_image}
+docker run -d --name valhalla_repeat -p 8002:8002 -v $custom_file_folder:/custom_files -e use_tiles_ignore_pbf=True -e build_elevation=False -e build_admins=True -e build_time_zones=True ${valhalla_image}
 wait_for_docker
 
 if [[ ! -f ${tile_tar} ]]; then
