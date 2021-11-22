@@ -5,7 +5,7 @@
 A hyper-flexible Docker image for the excellent [Valhalla](https://github.com/valhalla/valhalla) routing framework.
 
 ```bash
-docker run -dt --name valhalla_gis-ops -p 8002:8002 -v $PWD/custom_files:/valhalla_files gisops/valhalla:latest
+docker run -dt --name valhalla_gis-ops -p 8002:8002 -v $PWD/custom_files:/custom_files gisops/valhalla:latest
 ```
 
 This image aims at being user-friendly and most efficient with your time and resources. Once built, you can easily change Valhalla's configuration, the underlying OSM data graphs are built from, accompanying data (like Admin Areas, elevation tiles) or even pre-built graph tiles. Upon `docker restart <container>` those changes are taken into account via **hashed files**, and, if necessary, new graph tiles will be built automatically.
@@ -65,10 +65,10 @@ For the following instructions to work, you'll need to have the image locally av
 Start a background container from that image:
 
 ```bash
-docker run -dt -v $PWD/custom_files:/valhalla_files -p 8002:8002 --name valhalla gisops/valhalla:latest
+docker run -dt -v $PWD/custom_files:/custom_files -p 8002:8002 --name valhalla gisops/valhalla:latest
 ```
 
-The important part here is, that you map a volume from your host machine to the container's **`/valhalla_files`**. The container will dump all relevant Valhalla files to that directory.
+The important part here is, that you map a volume from your host machine to the container's **`/custom_files`**. The container will dump all relevant Valhalla files to that directory.
 
 At this point Valhalla is running, but there is no graph tiles yet. Follow the steps below to customize your Valhalla instance in a heartbeat.
 
@@ -93,7 +93,7 @@ If you need to customize Valhalla's configuration to e.g. increase the allowed m
 
 #### Run Valhalla with pre-built tiles
 
-In the case where you have a pre-built `valhalla_tiles.tar` package from another Valhalla instance, you can also dump that to `/valhalla_files/` and they're loaded upon container restart if you set the following environment variables: `use_tiles_ignore_pbf=True`, `force_rebuild=False`. Also, don't forget to set the md5 sum for your `valhalla_tiles.tar` in `.file_hashes.txt`.
+In the case where you have a pre-built `valhalla_tiles.tar` package from another Valhalla instance, you can also dump that to `/custom_files/` and they're loaded upon container restart if you set the following environment variables: `use_tiles_ignore_pbf=True`, `force_rebuild=False`. Also, don't forget to set the md5 sum for your `valhalla_tiles.tar` in `.file_hashes.txt`.
 
 ## Notes on user management
 

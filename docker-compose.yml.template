@@ -11,7 +11,7 @@ services:
     #    - VALHALLA_UID=1000
     #    - VALHALLA_GID=1000
     volumes:
-      - ./custom_files/:/valhalla_files
+      - ./custom_files/:/custom_files
     environment:
       # Auto-download PBFs from Geofabrik
       #- tile_urls=https://download.geofabrik.de/europe/andorra-latest.osm.pbf https://download.geofabrik.de/europe/albania-latest.osm.pbf
