@@ -22,6 +22,7 @@ services:
       - build_time_zones=False  # build timezone db with "True" or "Force"
       - build_tar=True  # build an indexed tar file from the tile_dir for faster graph loading times
       - force_rebuild=False  # forces a rebuild of the routing tiles with "True"
+      - path_extension=graphs  # this path will be internally appended to /custom_files; no leading or trailing path separator!
     # adapt to the expected build time
     # healthcheck: 
     #   test: curl --fail -s http://localhost:8002/status || exit 1
