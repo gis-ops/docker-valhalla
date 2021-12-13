@@ -21,7 +21,7 @@ do_build_tar() {
     exit 1
   fi
   
-  if [[ ${build_tar} == "True" && ! -f $TILE_TAR ]] || [[ ${build_tar} == "Force" ]]; then
+  if ([[ ${build_tar} == "True" && ! -f $TILE_TAR ]]) || [[ ${build_tar} == "Force" ]]; then
     run_cmd "valhalla_build_extract -c ${CONFIG_FILE} -v"
   fi
 }
@@ -39,16 +39,19 @@ fi
 echo ""
 
 # the env vars with True default are set in the dockerfile, others are evaluated in configure_valhalla.sh
-if [[ -z "$server_threads" ]]; then
+if [[ -z $server_threads ]]; then
   server_threads=$(nproc)
+fi
+if [[ -z $build_tar ]]; then
+  build_tar="True"
 fi
 
 # evaluate CMD 
-if [[ $1 == "build_tiles" ]]; then
+if [[ $1 == "build_tiles" ]] || ; then
 
   run_cmd "/valhalla/scripts/configure_valhalla.sh ${CONFIG_FILE} ${CUSTOM_FILES} ${TILE_DIR} ${TILE_TAR}" 
   # tar tiles unless not wanted
-  if [[ "$build_tar" == "True" ]]; then
+  if [[ "$build_tar" == "True" ]] || [[ ${build_tar} == "Force" ]]; then
     do_build_tar
   else
     echo "WARNING: Skipping tar building. Expect degraded performance while using Valhalla."

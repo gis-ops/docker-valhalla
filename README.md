@@ -57,7 +57,7 @@ This image respects the following custom environment variables to be passed duri
 - `build_time_zones`: `True` builds the timezone db which is needed for time-dependent routing. `Force` will do the same, but first delete the existing db. Default `False`.
 - `build_tar` (since 29.10.2021/v`3.1.5`): `True` creates a tarball of the tiles including an index which allows for extremely faster graph loading after reboots. `Force` will do the same, but first delete the existing tarball. Default `True`.
 - `server_threads`: How many threads `valhalla_service` will run with. Default is the value of `nproc`.
-- `path_extension`: This path will be appended to the container-internal `/custom_files` (and by extension to the docker volume mapped to that path) and will be the directory where all files will be created. No leading/trailing path separator allowed. Default is ''.
+- `path_extension`: This path will be appended to the container-internal `/custom_files` (and by extension to the docker volume mapped to that path) and will be the directory where all files will be created. Can be very useful in certain deployment scenarios. No leading/trailing path separator allowed. Default is ''.
 
 ## Container recipes
 
