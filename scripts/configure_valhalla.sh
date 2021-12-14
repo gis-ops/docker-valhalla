@@ -93,8 +93,9 @@ if [[ ${files_counter} == 0 ]] && [[ ${do_build} == "True" ]]; then
   else
     echo "WARNING: No local files and no valhalla_tiles.tar found. Downloading links: ${tile_urls}!"
     for url in ${tile_urls}; do
-      download_file "${url}"
-      files="${files} $CUSTOM_FILES/$(basename $url)"
+      fp=$CUSTOM_FILES/$(basename $url)
+      download_file "${url}" "${fp}"
+      files="${files} ${fp}"
     done
   fi
 fi

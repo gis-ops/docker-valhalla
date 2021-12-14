@@ -72,7 +72,7 @@ download_file() {
     echo "==============================================================="
     echo " Downloading  ${url}"
     echo "==============================================================="
-    curl --location -O ${url}
+    curl --location -o "${2}" ${url}
   else
     echo "ERROR: Couldn't download from ${url}."
     exit 1
