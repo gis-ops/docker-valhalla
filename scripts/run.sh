@@ -47,7 +47,7 @@ if [[ -z $build_tar ]]; then
 fi
 
 # evaluate CMD 
-if [[ $1 == "build_tiles" ]] || ; then
+if [[ $1 == "build_tiles" ]]; then
 
   run_cmd "/valhalla/scripts/configure_valhalla.sh ${CONFIG_FILE} ${CUSTOM_FILES} ${TILE_DIR} ${TILE_TAR}" 
   # tar tiles unless not wanted
