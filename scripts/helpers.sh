@@ -67,7 +67,7 @@ add_hashes() {
 }
 
 download_file() {
-  if curl --location --output /dev/null --silent --head --fail "${1}"; then
+  if curl --location --output /dev/null --silent --show-error --head --fail "${1}"; then
     echo ""
     echo "==============================================================="
     echo " Downloading  ${url}"
