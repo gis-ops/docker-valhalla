@@ -61,8 +61,7 @@ WORKDIR /custom_files
 RUN    python3 -c "import valhalla,sys; print (sys.version, valhalla)" \
     && valhalla_build_config | jq type \
     && valhalla_build_tiles -v \
-    && cat /usr/local/src/valhalla_version \
-    && ls -la /usr/local/bin/valhalla*
+    && cat /usr/local/src/valhalla_version
 
 # Expose the necessary port
 EXPOSE 8002
