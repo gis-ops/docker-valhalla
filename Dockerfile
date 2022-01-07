@@ -28,7 +28,8 @@ RUN apt-get update > /dev/null && \
 COPY --from=builder /usr/local /usr/local
 COPY --from=builder /usr/bin/prime_* /usr/bin/
 COPY --from=builder /usr/lib/x86_64-linux-gnu/libprime* /usr/lib/x86_64-linux-gnu/
-  
+COPY --from=builder /usr/lib/python3/dist-packages/valhalla/* /usr/lib/python3/dist-packages/valhalla/
+
 ENV LD_LIBRARY_PATH="/usr/local/lib:${LD_LIBRARY_PATH}"
 # export the True defaults
 ENV use_tiles_ignore_pbf=True
@@ -55,6 +56,13 @@ COPY scripts/. /valhalla/scripts
 USER valhalla
 
 WORKDIR /custom_files
+
+# Smoke tests
+RUN    python3 -c "import valhalla,sys; print (sys.version, valhalla)" \
+    && valhalla_build_config | jq type \
+    && cat /usr/local/src/valhalla_version \
+    && valhalla_build_tiles -v \
+    && ls -la /usr/local/bin/valhalla*
 
 # Expose the necessary port
 EXPOSE 8002
