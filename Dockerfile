@@ -60,6 +60,7 @@ WORKDIR /custom_files
 # Smoke tests
 RUN    python3 -c "import valhalla,sys; print (sys.version, valhalla)" \
     && valhalla_build_config | jq type \
+    && cat /usr/local/src/valhalla_version \
     && valhalla_build_tiles -v \
     && ls -la /usr/local/bin/valhalla*
 
