@@ -34,5 +34,4 @@ jobs:
           sudo apt-get update > /dev/null
           sudo apt-get install -y moreutils tree > /dev/null
           sudo /bin/bash -c "./tests/test.sh gisops/valhalla:latest"
-          mkdir ${PWD}/tests/custom_files
           /bin/bash -c "./tests/test.sh gisops/valhalla:latest_user_stuff"

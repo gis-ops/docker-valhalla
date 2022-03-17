@@ -70,11 +70,11 @@ download_file() {
   if curl --location --output /dev/null --silent --show-error --head --fail "${1}"; then
     echo ""
     echo "==============================================================="
-    echo " Downloading  ${url}"
+    echo " Downloading  ${1}"
     echo "==============================================================="
-    curl --location -o "${2}" ${url}
+    curl --location -o "${2}" ${1}
   else
-    echo "ERROR: Couldn't download from ${url}."
+    echo "ERROR: Couldn't download from ${1}."
     exit 1
   fi
 }
