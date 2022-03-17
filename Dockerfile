@@ -18,10 +18,10 @@ MAINTAINER Nils Nolde <nils@gis-ops.com>
 
 RUN apt-get update > /dev/null && \
     export DEBIAN_FRONTEND=noninteractive && \
-    apt-get install -y libboost-program-options1.71.0 libluajit-5.1-2 \
-      libzmq5 libczmq4 spatialite-bin libprotobuf-lite17 sudo \
+    apt-get install -y libluajit-5.1-2 \
+      libzmq5 libczmq4 spatialite-bin libprotobuf-lite17 sudo locales \
       libsqlite3-0 libsqlite3-mod-spatialite libgeos-3.8.0 libcurl4 \
-      python3.8-minimal python3-distutils curl unzip parallel moreutils jq spatialite-bin > /dev/null && \
+      python3.8-minimal python3-distutils curl unzip moreutils jq spatialite-bin > /dev/null && \
     ln -sf /usr/bin/python3.8 /usr/bin/python && \
     ln -sf /usr/bin/python3.8 /usr/bin/python3
 
@@ -47,9 +47,6 @@ RUN groupadd -g ${VALHALLA_GID} valhalla && \
   useradd -lmu ${VALHALLA_UID} -g valhalla valhalla && \
   mkdir /custom_files && \
   if [ $VALHALLA_UID != 59999 ] || [ $VALHALLA_GID != 59999 ]; then chmod 0775 custom_files && chown valhalla:valhalla /custom_files; else usermod -aG sudo valhalla && echo "ALL            ALL = (ALL) NOPASSWD: ALL" >> /etc/sudoers; fi
-
-ENV VALHALLA_UID=${VALHALLA_UID}
-ENV VALHALLA_GID=${VALHALLA_GID}
 
 COPY scripts/. /valhalla/scripts
 

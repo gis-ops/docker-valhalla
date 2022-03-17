@@ -15,12 +15,7 @@ run_cmd() {
   fi
 }
 
-do_build_tar() {
-  if ! test -d $TILE_DIR; then
-    echo "ERROR: No tiles found. Did you forget to build tiles?"
-    exit 1
-  fi
-  
+do_build_tar() {  
   if ([[ ${build_tar} == "True" && ! -f $TILE_TAR ]]) || [[ ${build_tar} == "Force" ]]; then
     run_cmd "valhalla_build_extract -c ${CONFIG_FILE} -v"
   fi
