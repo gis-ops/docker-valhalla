@@ -7,7 +7,7 @@ set -e
 
 # we need to either run commands that create files with or without sudo (depends if the image was built with a UID/GID other than 0)
 run_cmd() {
-  if [[ "${VALHALLA_UID}" == "59999" ]] && [[ "${VALHALLA_GID}" == "59999" ]]; then
+  if [[ $(id --user) == "59999" ]] && [[ $(id --group) == "59999" ]]; then
     # -E preserves the env vars
     sudo -E $1 || exit 1
   else
@@ -15,7 +15,7 @@ run_cmd() {
   fi
 }
 
-do_build_tar() {  
+do_build_tar() {
   if ([[ ${build_tar} == "True" && ! -f $TILE_TAR ]]) || [[ ${build_tar} == "Force" ]]; then
     run_cmd "valhalla_build_extract -c ${CONFIG_FILE} -v"
   fi
@@ -26,7 +26,7 @@ dir_owner=$(stat --format '%U' "${CUSTOM_FILES}")
 echo ""
 echo "INFO: Running container with user $(whoami) UID $(id --user) and GID $(id --group)."
 if [[ ${dir_owner} == "root" ]]; then
-  if [[ "${VALHALLA_UID}" != "59999" ]] || [[ "${VALHALLA_GID}" != "59999" ]]; then
+  if [[ $(id --user) != "59999" ]] || [[ $(id --group) != "59999" ]]; then
     echo "ERROR: If you run with custom UID or GID you have to create the mapped directory to the container's /custom_files manually before starting the image"
     exit 1
   fi
@@ -41,10 +41,10 @@ if [[ -z $build_tar ]]; then
   build_tar="True"
 fi
 
-# evaluate CMD 
+# evaluate CMD
 if [[ $1 == "build_tiles" ]]; then
 
-  run_cmd "/valhalla/scripts/configure_valhalla.sh ${CONFIG_FILE} ${CUSTOM_FILES} ${TILE_DIR} ${TILE_TAR}" 
+  run_cmd "/valhalla/scripts/configure_valhalla.sh ${CONFIG_FILE} ${CUSTOM_FILES} ${TILE_DIR} ${TILE_TAR}"
   # tar tiles unless not wanted
   if [[ "$build_tar" == "True" ]] || [[ ${build_tar} == "Force" ]]; then
     do_build_tar
@@ -53,7 +53,7 @@ if [[ $1 == "build_tiles" ]]; then
   fi
 
   # lazy workaround, not sure what's wrong when using the run_cmd function..
-  if [[ "${VALHALLA_UID}" == "59999" ]] && [[ "${VALHALLA_GID}" == "59999" ]]; then
+  if [[ $(id --user) == "59999" ]] && [[ $(id --group) == "59999" ]]; then
     echo "WARNING: User $(whoami) is running with sudo privileges. Try building the image with a host user's UID & GID."
     # set 775/664 permissions on all created files
     sudo find "${CUSTOM_FILES}" -type d -exec chmod 775 {} \;
@@ -72,7 +72,7 @@ if [[ $1 == "build_tiles" ]]; then
 
   # Keep docker running easy
   exec "$@"
-  
+
 elif [[ $1 == "tar_tiles" ]]; then
   do_build_tar
 else
