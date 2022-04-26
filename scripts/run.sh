@@ -40,6 +40,9 @@ fi
 if [[ -z $build_tar ]]; then
   build_tar="True"
 fi
+if [[ -z $serve_tiles ]]; then
+  serve_tiles="True"
+fi
 
 # evaluate CMD
 if [[ $1 == "build_tiles" ]]; then
@@ -63,16 +66,19 @@ if [[ $1 == "build_tiles" ]]; then
     find "${CUSTOM_FILES}" -type f -exec chmod 664 {} \;
   fi
 
-  if test -f ${CONFIG_FILE}; then
-    echo "INFO: Found config file. Starting valhalla service!"
-    run_cmd "valhalla_service ${CONFIG_FILE} ${server_threads}"
+  if [[ ${serve_tiles} == "True" ]]; then
+    if test -f ${CONFIG_FILE}; then
+      echo "INFO: Found config file. Starting valhalla service!"
+      run_cmd "valhalla_service ${CONFIG_FILE} ${server_threads}"
+    else
+      echo "WARNING: No config found!"
+    fi
+
+    # Keep docker running easy
+    exec "$@"
   else
-    echo "WARNING: No config found!"
+    echo "INFO: Not serving tiles. Exiting."
   fi
-
-  # Keep docker running easy
-  exec "$@"
-
 elif [[ $1 == "tar_tiles" ]]; then
   do_build_tar
 else
