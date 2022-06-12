@@ -74,7 +74,8 @@ download_file() {
     echo "==============================================================="
     curl --location -o "${2}" ${1}
   else
-    echo "ERROR: Couldn't download from ${1}."
+    echo "ERROR: Couldn't download from ${1}.
+    "
     exit 1
   fi
 }
