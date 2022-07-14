@@ -11,8 +11,8 @@ if ! test -d "${CUSTOM_FILES}"; then
 fi
 
 CONFIG_FILE="${CUSTOM_FILES}/valhalla.json"
-TILE_DIR="${CUSTOM_FILES}/valhalla_tiles"
-TILE_TAR="${CUSTOM_FILES}/valhalla_tiles.tar"
+TILE_DIR="${CUSTOM_FILES}/${tileset_name:-valhalla_tiles}"
+TILE_TAR="${CUSTOM_FILES}/${tileset_name:-valhalla_tiles}.tar"
 HASH_FILE="${CUSTOM_FILES}/file_hashes.txt"
 ADMIN_DB="${CUSTOM_FILES}/admin_data/admins.sqlite"
 TIMEZONE_DB="${CUSTOM_FILES}/timezone_data/timezones.sqlite"
