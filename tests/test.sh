@@ -5,8 +5,6 @@ valhalla_image=$1
 custom_file_folder="$PWD/tests/custom_files"
 admin_db="${custom_file_folder}/admin_data/admins.sqlite"
 timezone_db="${custom_file_folder}/timezone_data/timezones.sqlite"
-tile_dir="${custom_file_folder}/valhalla_tiles"
-tile_tar="${custom_file_folder}/valhalla_tiles.tar"
 ANDORRA="$PWD/tests/andorra-latest.osm.pbf"
 LIECHTENSTEIN="$PWD/tests/liechtenstein-latest.osm.pbf"
 
@@ -29,7 +27,7 @@ wait_for_docker() {
 }
 
 last_mod_tiles() {
-  find "${tile_dir}" -type f -exec stat \{\} --printf="%y\n" \; | sort -nr | head -n 1
+  find "${custom_file_folder}/$1" -type f -exec stat \{\} --printf="%y\n" \; | sort -nr | head -n 1
 }
 
 route_request="curl -s -XPOST 'http://localhost:8002/route' -H'Content-Type: application/json' --data-raw '{
@@ -57,7 +55,9 @@ cp ${ANDORRA} ${custom_file_folder}
 
 #### FULL BUILD ####
 echo "#### Full build test, no extract ####"
-docker run -d --name valhalla_full -p 8002:8002 -v $custom_file_folder:/custom_files -e use_tiles_ignore_pbf=False -e build_elevation=False -e build_admins=True -e build_time_zones=True -e build_tar=False ${valhalla_image}
+tileset_name="andorra_tiles"
+tile_tar="${custom_file_folder}/${tileset_name}.tar"
+docker run -d --name valhalla_full -p 8002:8002 -v $custom_file_folder:/custom_files -e tileset_name=$tileset_name -e use_tiles_ignore_pbf=False -e build_elevation=False -e build_admins=True -e build_time_zones=True -e build_tar=False ${valhalla_image}
 wait_for_docker
 
 # Make sure all files are there!
@@ -71,7 +71,7 @@ done
 eval $route_request > /dev/null
 
 # Save the modification dates
-mod_date_tiles=$(last_mod_tiles)
+mod_date_tiles=$(last_mod_tiles $tileset_name)
 mod_date_admins=$(stat -c %y ${admin_db})
 mod_date_timezones=$(stat -c %y ${timezone_db})
 
@@ -93,8 +93,8 @@ if [[ $res != "154" ]]; then
 fi
 
 # Tiles weren't modified
-if [[ $(last_mod_tiles) != $mod_date_tiles ]]; then
-  echo "new stat: $(last_mod_tiles), old stat: ${mod_date_tiles}"
+if [[ $(last_mod_tiles $tileset_name) != $mod_date_tiles ]]; then
+  echo "new stat: $(last_mod_tiles $tileset_name), old stat: ${mod_date_tiles}"
   echo "valhalla_tiles were modified even though it shouldn't"
   exit 1
 fi
@@ -113,36 +113,36 @@ wait_for_docker
 
 eval $route_request 2>&1 > /dev/null
 # Tiles WERE modified
-if [[ $(last_mod_tiles) == $mod_date_tiles ]]; then
+if [[ $(last_mod_tiles $tileset_name) == $mod_date_tiles ]]; then
   echo "valhalla_tiles.tar was NOT modified even though it should've"
   exit 1
 fi
-mod_date_tiles2=$(last_mod_tiles)
+mod_date_tiles2=$(last_mod_tiles $tileset_name)
 
 #### Create a tar ball ####
 echo "#### Create tar ball only ####"
 
-docker run --rm --name valhalla_tar -v ${custom_file_folder}:/custom_files ${valhalla_image} tar_tiles
-if [[ ! -f ${tile_tar} ]]; then
+docker run --rm --name valhalla_tar -v ${custom_file_folder}:/custom_files -e tileset_name=$tileset_name ${valhalla_image} tar_tiles
+if [[ ! -f "${custom_file_folder}/${tileset_name}.tar" ]]; then
   echo "tar_tiles CMD didn't work"
   exit 1
 else
-  rm ${tile_tar}
+  rm "${custom_file_folder}/${tileset_name}.tar"
 fi
 
 #### Create a new container with same config ####
 echo "#### New container but old data, also build the tar by default and check if it exists ####"
 docker rm -f valhalla_full
-docker run -d --name valhalla_repeat -p 8002:8002 -v $custom_file_folder:/custom_files -e use_tiles_ignore_pbf=True -e build_elevation=False -e build_admins=True -e build_time_zones=True ${valhalla_image}
+docker run -d --name valhalla_repeat -p 8002:8002 -v $custom_file_folder:/custom_files -e tileset_name=$tileset_name -e use_tiles_ignore_pbf=True -e build_elevation=False -e build_admins=True -e build_time_zones=True ${valhalla_image}
 wait_for_docker
 
-if [[ ! -f ${tile_tar} ]]; then
+if [[ ! -f ${custom_file_folder}/${tileset_name}.tar ]]; then
   echo "default CMD didn't build the tar extract"
   exit 1
 fi
 
 # Tiles, admins & timezones weren't modified
-if [[ $(last_mod_tiles) != $mod_date_tiles2 || $(stat -c %y ${admin_db}) != $mod_date_admins || $(stat -c %y ${timezone_db}) != $mod_date_timezones ]]; then
+if [[ $(last_mod_tiles $tileset_name) != $mod_date_tiles2 || $(stat -c %y ${admin_db}) != $mod_date_admins || $(stat -c %y ${timezone_db}) != $mod_date_timezones ]]; then
   echo "some data was modified even though it shouldn't have"
   exit 1
 fi

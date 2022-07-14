@@ -52,23 +52,23 @@ done
 do_build="False"
 if ! test -f "${TILE_TAR}" && ! [ -n "$(ls -A ${TILE_DIR} 2>/dev/null)" ]; then
   # build if no tiles exist
-  echo "WARNING: No routing tiles found, starting new build.."
+  echo "WARNING: No routing tiles found at ${TILE_TAR} or ${TILE_DIR}, starting new build.."
   do_build="True"
-elif [[ "${force_rebuild}" == "True" ]]; then
+elif [[ ${force_rebuild} == "True" ]]; then
   # respect the env var
-  echo "WARNING: force_rebuild True."
+  echo "WARNING: force_rebuild ${force_rebuild}."
   do_build="True"
 elif [[ "${do_admins}" == "True" ]]; then
   # rebuild if the admin db has to be built
-  echo "WARNING: No admin db found, starting a new build"
+  echo "WARNING: Requested admin db, but none found, starting a new build"
   do_build="True"
 elif [[ "${do_timezones}" == "True" ]]; then
   # rebuild if the timezone db has to be built
-  echo "WARNING: No timezone db found, starting a new build"
+  echo "WARNING: Requested timezone db, but none found, starting a new build"
   do_build="True"
 elif [[ "${do_elevation}" == "True" ]] && ! [ -n "$(ls -A ${ELEVATION_PATH} 2>/dev/null)" ]; then
   # build if elevation was requested but not downloaded yet
-  echo "WARNING: No elevation tiles found, starting a new build"
+  echo "WARNING: Requested elevation support, but none found, starting a new build"
   do_build="True"
 elif [[ "${use_tiles_ignore_pbf}" == "True" ]]; then
   # don't build if there are tiles and we want to load them

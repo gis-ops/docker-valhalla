@@ -54,7 +54,7 @@ docker build -t gisops/valhalla .
 
 This image respects the following custom environment variables to be passed during container startup. Note, all variables have a default:
 
-- `tile_urls`: Add as many (space-separated) URLs as you like, e.g. https://download.geofabrik.de/europe/andorra-latest.osm.pbf 
+- `tile_urls`: Add as many (space-separated) URLs as you like, e.g. https://download.geofabrik.de/europe/andorra-latest.osm.pbf
 - `use_tiles_ignore_pbf`: `True` uses a local tile.tar file and skips building. Default `False`.
 - `force_rebuild`: `True` forces a rebuild of the routing tiles. Default `False`.
 - `build_elevation`: `True` downloads elevation tiles which are covering the routing graph. `Force` will do the same, but first delete any existing elevation tiles. Default `False`.
@@ -64,6 +64,7 @@ This image respects the following custom environment variables to be passed duri
 - `server_threads`: How many threads `valhalla_service` will run with. Default is the value of `nproc`.
 - `path_extension`: This path will be appended to the container-internal `/custom_files` (and by extension to the docker volume mapped to that path) and will be the directory where all files will be created. Can be very useful in certain deployment scenarios. No leading/trailing path separator allowed. Default is ''.
 - `serve_tiles`: `True` starts the valhalla service. Default `True`.
+- `tileset_name`: The name of the resulting graph on disk. Very useful in case you want to build multiple datasets in the same directory. Default `valhalla_tiles`.
 
 ## Container recipes
 
