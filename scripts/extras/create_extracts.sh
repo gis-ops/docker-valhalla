@@ -23,7 +23,7 @@ git clone https://github.com/gis-ops/elevation_tiles_from_polygons.git ${EXTRACT
 printf "\n### Preparing OSM regions ###\n"
 
 if [[ ! -f "${CUSTOM_FILES}/${FINAL_OSM_FILE}" ]]; then
-  for extract in us-midwest us-northeast us-south canada
+  for extract in us canada
   do
     fp=${CUSTOM_FILES}/${extract}-latest.osm.pbf
     if [[ ! -f "${fp}" ]]; then
@@ -55,7 +55,7 @@ printf "\n### Downloading elevation ###\n"
 
 cd ${SCRIPTS_PATH}/extras/${EXTRACT_REPO}
 
-if [[ -d .venv ]]; then
+if ! [[ -d .venv ]]; then
   python -m venv .venv
 fi
 . .venv/bin/activate
