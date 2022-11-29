@@ -24,7 +24,7 @@ fi
 do_elevation="False"
 do_admins="False"
 do_timezones="False"
-if [[ "${build_elevation}" == "True" ]] || [[ "${build_elevation}" == "Force" ]] || ! ([[ -z "${min_x}" ]] && [[ -z "${min_y}" ]] && [[ -z "${max_x}" ]] && [[ -z "${max_y}" ]]); then
+if ([[ "${build_elevation}" == "True" ]] || [[ "${build_elevation}" == "Force" ]]) && ! ([[ -z "${min_x}" ]] || [[ -z "${min_y}" ]] || [[ -z "${max_x}" ]] || [[ -z "${max_y}" ]]); then
   do_elevation="True"
 fi
 if ([[ "${build_admins}" == "True" ]] && ! test -f "${ADMIN_DB}") || [[ "${build_admins}" == "Force" ]]; then
