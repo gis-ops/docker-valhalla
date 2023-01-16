@@ -1,6 +1,6 @@
 test/custom_files
 .git
-README.md
 **/*.pbf
 **/*.tar
 **/*.sqlite
+*.md
