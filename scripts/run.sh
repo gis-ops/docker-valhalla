@@ -8,8 +8,9 @@ set -e
 # we need to either run commands that create files with or without sudo (depends if the image was built with a UID/GID other than 0)
 run_cmd() {
   if [[ $(id --user) == "59999" ]] && [[ $(id --group) == "59999" ]]; then
-    # -E preserves the env vars
-    sudo -E $1 || exit 1
+    # -E preserves the env vars, but some are still nulled for security reasons
+    # use "env" to preserve them
+    sudo -E env LD_LIBRARY_PATH=$LD_LIBRARY_PATH $1 || exit 1
   else
     $1 || exit 1
   fi

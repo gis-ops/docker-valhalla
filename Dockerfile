@@ -13,21 +13,17 @@ RUN cd /usr/local/bin && \
   for f in valhalla*; do rm $f; done && \
   cd .. && mv $preserve ./bin
 
-FROM ubuntu:20.04 as runner_base
+FROM ubuntu:22.04 as runner_base
 MAINTAINER Nils Nolde <nils@gis-ops.com>
 
 RUN apt-get update > /dev/null && \
     export DEBIAN_FRONTEND=noninteractive && \
     apt-get install -y libluajit-5.1-2 \
-      libzmq5 libczmq4 spatialite-bin libprotobuf-lite17 sudo locales \
-      libsqlite3-0 libsqlite3-mod-spatialite libgeos-3.8.0 libcurl4 \
-      python3.8-minimal python3-distutils curl unzip moreutils jq spatialite-bin > /dev/null && \
-    ln -sf /usr/bin/python3.8 /usr/bin/python && \
-    ln -sf /usr/bin/python3.8 /usr/bin/python3
+      libzmq5 libczmq4 spatialite-bin libprotobuf-lite23 sudo locales \
+      libsqlite3-0 libsqlite3-mod-spatialite libcurl4 \
+      python3.10-minimal python3-distutils curl unzip moreutils jq spatialite-bin python-is-python3 > /dev/null
 
 COPY --from=builder /usr/local /usr/local
-COPY --from=builder /usr/bin/prime_* /usr/bin/
-COPY --from=builder /usr/lib/x86_64-linux-gnu/libprime* /usr/lib/x86_64-linux-gnu/
 COPY --from=builder /usr/lib/python3/dist-packages/valhalla/* /usr/lib/python3/dist-packages/valhalla/
 
 ENV LD_LIBRARY_PATH="/usr/local/lib:${LD_LIBRARY_PATH}"
@@ -56,11 +52,14 @@ USER valhalla
 WORKDIR /custom_files
 
 # Smoke tests
-RUN python3 -c "import valhalla,sys; print (sys.version, valhalla)" \
+RUN python -c "import valhalla,sys; print (sys.version, valhalla)" \
     && valhalla_build_config | jq type \
     && cat /usr/local/src/valhalla_version \
     && valhalla_build_tiles -v \
     && ls -la /usr/local/bin/valhalla*
+
+ENV PATH /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:$PATH
+ENV LD_LIBRARY_PATH /usr/local/lib:/lib/x86_64-linux-gnu:/usr/lib/x86_64-linux-gnu:/lib32:/usr/lib32
 
 # Expose the necessary port
 EXPOSE 8002
