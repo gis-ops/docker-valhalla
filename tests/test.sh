@@ -19,6 +19,7 @@ wait_for_docker() {
     fi
     sleep 1
     count=$(($count + 1))
+    echo "Tried $count times"
   done
 
   echo "max count reached"
@@ -57,7 +58,7 @@ cp ${ANDORRA} ${custom_file_folder}
 echo "#### Full build test, no extract ####"
 tileset_name="andorra_tiles"
 tile_tar="${custom_file_folder}/${tileset_name}.tar"
-docker run -d --name valhalla_full -p 8002:8002 -v $custom_file_folder:/custom_files -e tileset_name=$tileset_name -e use_tiles_ignore_pbf=False -e build_elevation=False -e build_admins=True -e build_time_zones=True -e build_tar=False ${valhalla_image}
+docker run -d --name valhalla_full -p 8002:8002 -v $custom_file_folder:/custom_files -e tileset_name=$tileset_name -e use_tiles_ignore_pbf=False -e build_elevation=False -e build_admins=True -e build_time_zones=True -e build_tar=False -e server_threads=1 ${valhalla_image}
 wait_for_docker
 
 # Make sure all files are there!
@@ -133,7 +134,7 @@ fi
 #### Create a new container with same config ####
 echo "#### New container but old data, also build the tar by default and check if it exists ####"
 docker rm -f valhalla_full
-docker run -d --name valhalla_repeat -p 8002:8002 -v $custom_file_folder:/custom_files -e tileset_name=$tileset_name -e use_tiles_ignore_pbf=True -e build_elevation=False -e build_admins=True -e build_time_zones=True ${valhalla_image}
+docker run -d --name valhalla_repeat -p 8002:8002 -v $custom_file_folder:/custom_files -e tileset_name=$tileset_name -e use_tiles_ignore_pbf=True -e build_elevation=False -e build_admins=True -e build_time_zones=True -e server_threads=1 ${valhalla_image}
 wait_for_docker
 
 if [[ ! -f ${custom_file_folder}/${tileset_name}.tar ]]; then
