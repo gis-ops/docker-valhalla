@@ -36,15 +36,14 @@ if ([[ "${build_time_zones}" == "True" ]] && ! test -f "${TIMEZONE_DB}") || [[ "
 fi
 # if there's no transit tiles yet, but it should build transit, then do that; or force and remove
 if [[ "${build_transit}" == "Force" ]] || (! [[ -d ${TRANSIT_DIR} ]] && [[ "${build_transit}" == "True" ]]) || ([[ $(find ${TRANSIT_DIR} -maxdepth 1 -type d | wc -l) -eq 1 ]] && [[ "${build_transit}" == "True" ]]); then
-  mkdir "${TRANSIT_DIR}"
+  rm ${TRANSIT_DIR} || true
   do_transit="True"
   if ! [[ -d ${GTFS_DIR} ]]; then
     echo "WARNING: Transit build requested, but no GTFS datasets found at ${GTFS_DIR}, skipping transit.."
     do_transit="False"
   fi
   if [[ "${build_transit}" == "Force" ]]; then
-    rm -r "${TRANSIT_DIR}"
-    mkdir "${TRANSIT_DIR}"
+    rm -r "${TRANSIT_DIR}" || true
     force_rebuild="True"
   fi
 fi
