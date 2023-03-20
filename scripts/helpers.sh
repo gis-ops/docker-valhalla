@@ -2,6 +2,7 @@
 
 # create global variables
 CUSTOM_FILES="/custom_files"
+GTFS_DIR="/gtfs_dir"
 # if the user requested a path_extension, apply it
 if [[ -n $path_extension ]]; then
   CUSTOM_FILES="${CUSTOM_FILES}/${path_extension}"
@@ -17,6 +18,7 @@ HASH_FILE="${CUSTOM_FILES}/file_hashes.txt"
 ADMIN_DB="${CUSTOM_FILES}/admin_data/admins.sqlite"
 TIMEZONE_DB="${CUSTOM_FILES}/timezone_data/timezones.sqlite"
 ELEVATION_PATH="${CUSTOM_FILES}/elevation_data"
+TRANSIT_DIR="${CUSTOM_FILES}/transit_tiles"
 
 maybe_create_dir() {
   if ! test -d $1; then
