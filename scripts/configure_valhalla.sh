@@ -43,7 +43,6 @@ if [[ "${build_transit}" == "Force" ]] || (! [[ -d ${TRANSIT_DIR} ]] && [[ "${bu
     do_transit="False"
   fi
   if [[ "${build_transit}" == "Force" ]]; then
-    rm -r "${TRANSIT_DIR}" || true
     force_rebuild="True"
   fi
 fi
