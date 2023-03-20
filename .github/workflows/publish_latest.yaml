@@ -13,23 +13,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out the repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Log in to GitHub Docker Registry
-        uses: docker/login-action@v1
+        uses: docker/login-action@v2
         with:
-          registry: docker.pkg.github.com
+          registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Log in to Dockerhub Registry
-        uses: docker/login-action@v1
-        with:
-          username: gisopsbot
-          password: ${{ secrets.DOCKERHUB_SECRET }}
       - name: Build container image
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v4
         with:
           context: .
           push: true
           tags: |
-            docker.pkg.github.com/${{ github.repository }}/valhalla:latest
-            gisops/valhalla:latest
+            ghcr.io/${{ github.repository }}/valhalla:latest

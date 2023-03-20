@@ -8,9 +8,9 @@ A hyper-flexible Docker image for the excellent [Valhalla](https://github.com/va
 # download a file to custom_files and start valhalla
 mkdir custom_files
 wget -O custom_files/andorra-latest.osm.pbf https://download.geofabrik.de/europe/andorra-latest.osm.pbf
-docker run -dt --name valhalla_gis-ops -p 8002:8002 -v $PWD/custom_files:/custom_files gisops/valhalla:latest
+docker run -dt --name valhalla_gis-ops -p 8002:8002 -v $PWD/custom_files:/custom_files ghcr.io/gis-ops/docker-valhalla/valhalla:latest
 # or let the container download the file for you
-docker run -dt --name valhalla_gis-ops -p 8002:8002 -v $PWD/custom_files:/custom_files -e tile_urls=https://download.geofabrik.de/europe/andorra-latest.osm.pbf gisops/valhalla:latest
+docker run -dt --name valhalla_gis-ops -p 8002:8002 -v $PWD/custom_files:/custom_files -e tile_urls=https://download.geofabrik.de/europe/andorra-latest.osm.pbf ghcr.io/gis-ops/docker-valhalla/valhalla:latest
 ```
 
 This image aims at being user-friendly and most efficient with your time and resources. Once built, you can easily change Valhalla's configuration, the underlying OSM data graphs are built from, accompanying data (like Admin Areas, elevation tiles) or even pre-built graph tiles. Upon `docker restart <container>` those changes are taken into account via **hashed files**, and, if necessary, new graph tiles will be built automatically.
@@ -26,14 +26,14 @@ This image aims at being user-friendly and most efficient with your time and res
 
 ## Dockerhub/Github Packages
 
-**NOTE**, with the recent (08.06.2021) announcement of Docker to close auto-builds, we're moving our images to Github packages. If it's not on Github you'll find an image version still on Dockerhub.
+**NOTE**, with the recent (17.03.2023) announcement of Docker to remove free "teams" (even those providing FOSS like us), we moved our images to Github packages. If it's not on Github you'll find an image version still on Dockerhub.
 
-~~In the [Dockerhub repository](https://hub.docker.com/r/gisops/valhalla) you'll find the following images/tags:~~
+Our [package registry](https://github.com/gis-ops/docker-valhalla/pkgs/container/docker-valhalla%2Fvalhalla) provides the following:
 
-~~- stable release tags (e.g. 3.0.9)~~
-~~- `latest`, updated from Valhalla Github repository every Saturday morning~~
+- stable release tags (e.g. 3.0.9)
+- `latest`, updated from Valhalla Github repository every Saturday morning
 
-Find the Docker images in our [package registry](https://github.com/orgs/gis-ops/packages?repo_name=docker-valhalla). The general syntax to pull an image from Github is `docker pull docker.pkg.github.com/gis-ops/docker-valhalla/valhalla:latest` (you might have to do a [`docker login`](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-docker-registry#authenticating-to-github-packages) before).
+> Note, you might have to do a [`docker login`](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-docker-registry#authenticating-to-github-packages) before.
 
 ## Build the image
 
@@ -47,7 +47,7 @@ If you want to build the image yourself, be aware that you might need to adapt t
 Then it's a simple
 
 ```shell script
-docker build -t gisops/valhalla .
+docker build -t ghcr.io/gis-ops/docker-valhalla/valhalla:latest .
 ```
 
 ## Environment variables
@@ -68,12 +68,12 @@ This image respects the following custom environment variables to be passed duri
 
 ## Container recipes
 
-For the following instructions to work, you'll need to have the image locally available already, either from [Docker Hub](https://hub.docker.com/repository/docker/gisops/valhalla) or from [local](#build-the-image).
+For the following instructions to work, you'll need to have the image locally available already, either from [Github Docker registry](https://github.com/gis-ops/docker-valhalla/pkgs/container/docker-valhalla%2Fvalhalla) or from [local](#build-the-image).
 
 Start a background container from that image:
 
 ```bash
-docker run -dt -v $PWD/custom_files:/custom_files -p 8002:8002 --name valhalla gisops/valhalla:latest
+docker run -dt -v $PWD/custom_files:/custom_files -p 8002:8002 --name valhalla ghcr.io/gis-ops/docker-valhalla/valhalla:latest
 ```
 
 The important part here is, that you map a volume from your host machine to the container's **`/custom_files`**. The container will dump all relevant Valhalla files to that directory.

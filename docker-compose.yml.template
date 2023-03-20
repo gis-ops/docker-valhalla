@@ -1,7 +1,7 @@
 version: '3.0'
 services:
   valhalla:
-    image: gisops/valhalla:latest
+    image: ghcr.io/gis-ops/docker-valhalla/valhalla:latest
     container_name: valhalla_latest
     ports:
       - 8002:8002
