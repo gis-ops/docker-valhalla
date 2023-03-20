@@ -160,8 +160,13 @@ if [[ "${do_transit}" == "True" ]]; then
   echo "= Building transit tiles ="
   echo "=========================="
   echo ""
+  # TEMP
+  jq --arg d "false" '.mjolnir.hierarchy = $d' "${CONFIG_FILE}"| sponge "${CONFIG_FILE}"
   valhalla_ingest_transit -c ${CONFIG_FILE} || exit 1
   valhalla_convert_transit -c ${CONFIG_FILE} || exit 1
+else
+  # TEMP, note this means no one can set build_transit False and hierarchies as well false
+  jq --arg d "true" '.mjolnir.hierarchy = $d' "${CONFIG_FILE}"| sponge "${CONFIG_FILE}"
 fi
 
 # Finally build the tiles
