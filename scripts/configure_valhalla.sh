@@ -35,7 +35,7 @@ if ([[ "${build_time_zones}" == "True" ]] && ! test -f "${TIMEZONE_DB}") || [[ "
   do_timezones="True"
 fi
 # if there's no transit tiles yet, but it should build transit, then do that; or force and remove
-if [[ "${build_transit}" == "Force" ]] || ! (([[ -d ${TRANSIT_DIR} ]] || [[ $(find ${TRANSIT_DIR}} -maxdepth 1 -type d | wc -l) -eq 1 ]]) && [[ "${build_transit}" == "True" ]]); then
+if [[ "${build_transit}" == "Force" ]] || (([[ -d ${TRANSIT_DIR} ]] || [[ $(find ${TRANSIT_DIR} -maxdepth 1 -type d | wc -l) -eq 1 ]]) && [[ "${build_transit}" == "True" ]]); then
   mkdir "${TRANSIT_DIR}"
   do_transit="True"
   if ! [[ -d ${GTFS_DIR} ]]; then
