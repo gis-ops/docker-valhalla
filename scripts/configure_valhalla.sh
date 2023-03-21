@@ -24,6 +24,7 @@ fi
 do_elevation="False"
 do_admins="False"
 do_timezones="False"
+do_transit="False"
 if [[ "${build_elevation}" == "True" ]] || [[ "${build_elevation}" == "Force" ]] || ! ([[ -z "${min_x}" ]] && [[ -z "${min_y}" ]] && [[ -z "${max_x}" ]] && [[ -z "${max_y}" ]]); then
   do_elevation="True"
 fi
@@ -32,6 +33,15 @@ if ([[ "${build_admins}" == "True" ]] && ! test -f "${ADMIN_DB}") || [[ "${build
 fi
 if ([[ "${build_time_zones}" == "True" ]] && ! test -f "${TIMEZONE_DB}") || [[ "${build_time_zones}" == "Force" ]]; then
   do_timezones="True"
+fi
+# if there's no transit tiles yet, but it should build transit, then do that; or force and remove
+if [[ "${build_transit}" == "Force" ]] || (! [[ -d ${TRANSIT_DIR} ]] && [[ "${build_transit}" == "True" ]]) || ([[ $(find ${TRANSIT_DIR} -maxdepth 1 -type d | wc -l) -eq 1 ]] && [[ "${build_transit}" == "True" ]]); then
+  rm ${TRANSIT_DIR} || true
+  do_transit="True"
+  if ! [[ -d ${GTFS_DIR} ]]; then
+    echo "WARNING: Transit build requested, but no GTFS datasets found at ${GTFS_DIR}, skipping transit.."
+    do_transit="False"
+  fi
 fi
 
 # Find and add .pbf files to the list of files
@@ -52,15 +62,18 @@ done
 do_build="False"
 if ! test -f "${TILE_TAR}" && ! [ -n "$(ls -A ${TILE_DIR} 2>/dev/null)" ]; then
   # build if no tiles exist
-  echo "WARNING: No routing tiles found at ${TILE_TAR} or ${TILE_DIR}, starting new build.."
+  echo "WARNING: No routing tiles found at ${TILE_TAR} or ${TILE_DIR}, starting a new build"
   do_build="True"
 elif [[ ${force_rebuild} == "True" ]]; then
   # respect the env var
-  echo "WARNING: force_rebuild ${force_rebuild}."
+  echo "WARNING: force_rebuild ${force_rebuild}, starting a new build"
+  do_build="True"
+elif [[ "${do_transit}" == "True" ]]; then
+  echo "WARNING: Requested transit data build, starting a new tile build"
   do_build="True"
 elif [[ "${do_admins}" == "True" ]]; then
   # rebuild if the admin db has to be built
-  echo "WARNING: Requested admin db, but none found, starting a new build"
+  echo "WARNING: Requested admin db, but none found, starting a new tile build"
   do_build="True"
 elif [[ "${do_timezones}" == "True" ]]; then
   # rebuild if the timezone db has to be built
@@ -77,7 +90,7 @@ elif [[ "${use_tiles_ignore_pbf}" == "True" ]]; then
   do_build="False"
 elif [[ "${new_hashes}" == "True" ]]; then
   # build if there are new/other PBF files
-  echo "WARNING: New PBF files were detected, starting new build.."
+  echo "WARNING: New PBF files were detected, starting new build"
   echo "WARNING: Hashes $(cat ${HASH_FILE})"
   do_build="True"
 else
@@ -104,15 +117,19 @@ files=$(echo $files | xargs)
 # be careful how to write the config (mostly for restart scenarios where env vars are true all of a sudden)
 if test -f "${CONFIG_FILE}"; then
   jq --arg d "${TILE_DIR}" '.mjolnir.tile_dir = $d' "${CONFIG_FILE}"| sponge "${CONFIG_FILE}"
-  jq --arg e "${TILE_TAR}" '.mjolnir.tile_extract = $e' "${CONFIG_FILE}"| sponge "${CONFIG_FILE}"
+  jq --arg d "${TILE_TAR}" '.mjolnir.tile_extract = $d' "${CONFIG_FILE}"| sponge "${CONFIG_FILE}"
   jq --arg d "${ADMIN_DB}" '.mjolnir.admin = $d' "${CONFIG_FILE}"| sponge "${CONFIG_FILE}"
   jq --arg d "${TIMEZONE_DB}" '.mjolnir.timezone = $d' "${CONFIG_FILE}"| sponge "${CONFIG_FILE}"
   jq --arg d "${ELEVATION_PATH}" '.additional_data.elevation = $d' "${CONFIG_FILE}"| sponge "${CONFIG_FILE}"
+  jq --arg d "${GTFS_DIR}" '.mjolnir.transit_feeds_dir = $d' "${CONFIG_FILE}"| sponge "${CONFIG_FILE}"
+  jq --arg d "${TRANSIT_DIR}" '.mjolnir.transit_dir = $d' "${CONFIG_FILE}"| sponge "${CONFIG_FILE}"
 else
   additional_data_elevation="--additional-data-elevation $ELEVATION_PATH"
   mjolnir_admin="--mjolnir-admin ${ADMIN_DB}"
   mjolnir_timezone="--mjolnir-timezone ${TIMEZONE_DB}"
-  valhalla_build_config --mjolnir-tile-dir ${TILE_DIR} --mjolnir-tile-extract ${TILE_TAR} ${mjolnir_timezone} ${mjolnir_admin} ${additional_data_elevation} --mjolnir-traffic-extract "" --mjolnir-transit-dir "" > ${CONFIG_FILE}  || exit 1
+  transit_dir="--mjolnir-transit-dir ${TRANSIT_DIR}"
+  gtfs_dir="--mjolnir-transit_feeds_dir ${GTFS_DIR}"
+  valhalla_build_config --mjolnir-tile-dir ${TILE_DIR} --mjolnir-tile-extract ${TILE_TAR} ${transit_dir} ${mjolnir_timezone} ${mjolnir_admin} ${additional_data_elevation} --mjolnir-traffic-extract "" --mjolnir-transit-dir "" > ${CONFIG_FILE}  || exit 1
 fi
 
 # build the databases maybe
@@ -133,6 +150,24 @@ if [[ "${do_timezones}" == "True" ]]; then
   echo "========================"
   echo ""
   valhalla_build_timezones > ${TIMEZONE_DB} || exit 1
+fi
+if [[ "${do_transit}" == "True" ]]; then
+  echo ""
+  echo "=========================="
+  echo "= Building transit tiles ="
+  echo "=========================="
+  echo ""
+  # TEMP
+  jq --arg d "false" '.mjolnir.hierarchy = $d' "${CONFIG_FILE}"| sponge "${CONFIG_FILE}"
+  valhalla_ingest_transit -c ${CONFIG_FILE} || exit 1
+  valhalla_convert_transit -c ${CONFIG_FILE} || exit 1
+  # also do timezones if not done already
+  if ! [[ -f ${TIMEZONE_DB} ]]; then
+    valhalla_build_timezones > ${TIMEZONE_DB} || exit 1
+  fi
+else
+  # TEMP, note this means no one can set build_transit False and hierarchies as well false
+  jq --arg d "true" '.mjolnir.hierarchy = $d' "${CONFIG_FILE}"| sponge "${CONFIG_FILE}"
 fi
 
 # Finally build the tiles
