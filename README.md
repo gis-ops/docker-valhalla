@@ -83,6 +83,16 @@ At this point Valhalla is running, but there is no graph tiles yet. Follow the s
 
 > Note, alternatively you could create `custom_files` on your host before starting the container with all necessary files you want to be respected, e.g. the OSM PBF files.
 
+#### Build Valhalla with transit
+
+Valhalla supports reading raw GTFS feeds to build transit into its graph, see the [docs](https://valhalla.github.io/valhalla/api/turn-by-turn/api-reference/#sample-json-payloads-for-multimodal-requests-with-transit) for more details.
+
+To enable `multimodal` routing, you'll need to map the directory which contains all the GTFS feeds to the container's `/gtfs_feeds` directory, e.g.
+
+```
+docker run -dt -v gtfs_feeds:/gtfs_feeds -v $PWD/custom_files:/custom_files -p 8002:8002 --name valhalla gisops/valhalla:latest
+```
+
 #### Build Valhalla with arbitrary OSM data
 
 Just dump **single or multiple** OSM PBF files to your mapped `custom_files` directory, restart the container and Valhalla will start building the graphs:

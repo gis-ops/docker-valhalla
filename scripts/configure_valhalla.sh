@@ -42,9 +42,6 @@ if [[ "${build_transit}" == "Force" ]] || (! [[ -d ${TRANSIT_DIR} ]] && [[ "${bu
     echo "WARNING: Transit build requested, but no GTFS datasets found at ${GTFS_DIR}, skipping transit.."
     do_transit="False"
   fi
-  if [[ "${build_transit}" == "Force" ]]; then
-    force_rebuild="True"
-  fi
 fi
 
 # Find and add .pbf files to the list of files
@@ -65,14 +62,14 @@ done
 do_build="False"
 if ! test -f "${TILE_TAR}" && ! [ -n "$(ls -A ${TILE_DIR} 2>/dev/null)" ]; then
   # build if no tiles exist
-  echo "WARNING: No routing tiles found at ${TILE_TAR} or ${TILE_DIR}, starting new build.."
+  echo "WARNING: No routing tiles found at ${TILE_TAR} or ${TILE_DIR}, starting a new build"
   do_build="True"
 elif [[ ${force_rebuild} == "True" ]]; then
   # respect the env var
-  echo "WARNING: force_rebuild ${force_rebuild}."
+  echo "WARNING: force_rebuild ${force_rebuild}, starting a new build"
   do_build="True"
-elif [[ "${force_rebuild}" == "True" ]]; then
-  echo "WARNING: Forcing transit data rebuild, starting entire new tile build.."
+elif [[ "${do_transit}" == "True" ]]; then
+  echo "WARNING: Requested transit data build, starting a new tile build"
   do_build="True"
 elif [[ "${do_admins}" == "True" ]]; then
   # rebuild if the admin db has to be built
@@ -93,7 +90,7 @@ elif [[ "${use_tiles_ignore_pbf}" == "True" ]]; then
   do_build="False"
 elif [[ "${new_hashes}" == "True" ]]; then
   # build if there are new/other PBF files
-  echo "WARNING: New PBF files were detected, starting new build.."
+  echo "WARNING: New PBF files were detected, starting new build"
   echo "WARNING: Hashes $(cat ${HASH_FILE})"
   do_build="True"
 else
@@ -164,6 +161,10 @@ if [[ "${do_transit}" == "True" ]]; then
   jq --arg d "false" '.mjolnir.hierarchy = $d' "${CONFIG_FILE}"| sponge "${CONFIG_FILE}"
   valhalla_ingest_transit -c ${CONFIG_FILE} || exit 1
   valhalla_convert_transit -c ${CONFIG_FILE} || exit 1
+  # also do timezones if not done already
+  if ! [[ -f ${TIMEZONE_DB} ]]; then
+    valhalla_build_timezones > ${TIMEZONE_DB} || exit 1
+  fi
 else
   # TEMP, note this means no one can set build_transit False and hierarchies as well false
   jq --arg d "true" '.mjolnir.hierarchy = $d' "${CONFIG_FILE}"| sponge "${CONFIG_FILE}"
