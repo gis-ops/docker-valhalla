@@ -123,13 +123,15 @@ if test -f "${CONFIG_FILE}"; then
   jq --arg d "${ELEVATION_PATH}" '.additional_data.elevation = $d' "${CONFIG_FILE}"| sponge "${CONFIG_FILE}"
   jq --arg d "${GTFS_DIR}" '.mjolnir.transit_feeds_dir = $d' "${CONFIG_FILE}"| sponge "${CONFIG_FILE}"
   jq --arg d "${TRANSIT_DIR}" '.mjolnir.transit_dir = $d' "${CONFIG_FILE}"| sponge "${CONFIG_FILE}"
+  jq --arg d "${TRAFFIC_TAR}" '.mjolnir.traffic_extract = $d' "${CONFIG_FILE}"| sponge "${CONFIG_FILE}"
 else
   additional_data_elevation="--additional-data-elevation $ELEVATION_PATH"
   mjolnir_admin="--mjolnir-admin ${ADMIN_DB}"
   mjolnir_timezone="--mjolnir-timezone ${TIMEZONE_DB}"
   transit_dir="--mjolnir-transit-dir ${TRANSIT_DIR}"
   gtfs_dir="--mjolnir-transit_feeds_dir ${GTFS_DIR}"
-  valhalla_build_config --mjolnir-tile-dir ${TILE_DIR} --mjolnir-tile-extract ${TILE_TAR} ${transit_dir} ${mjolnir_timezone} ${mjolnir_admin} ${additional_data_elevation} --mjolnir-traffic-extract "" --mjolnir-transit-dir "" > ${CONFIG_FILE}  || exit 1
+  traffic="--mjolnir-traffic-extract ${traffic_extract}"
+  valhalla_build_config --mjolnir-tile-dir ${TILE_DIR} --mjolnir-tile-extract ${TILE_TAR} ${transit_dir} ${mjolnir_timezone} ${mjolnir_admin} ${additional_data_elevation} ${traffic} > ${CONFIG_FILE}  || exit 1
 fi
 
 # build the databases maybe
