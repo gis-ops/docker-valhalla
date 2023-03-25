@@ -66,6 +66,7 @@ This image respects the following custom environment variables to be passed duri
 - `path_extension`: This path will be appended to the container-internal `/custom_files` (and by extension to the docker volume mapped to that path) and will be the directory where all files will be created. Can be very useful in certain deployment scenarios. No leading/trailing path separator allowed. Default is ''.
 - `serve_tiles`: `True` starts the valhalla service. Default `True`.
 - `tileset_name`: The name of the resulting graph on disk. Very useful in case you want to build multiple datasets in the same directory. Default `valhalla_tiles`.
+- `traffic_name`: The name of the traffic.tar. Again, useful for serving mulitple traffic archives from the same directory. If empty, i.e. "", then no traffic archive will be built. Default `traffic.tar`.
 
 ## Container recipes
 

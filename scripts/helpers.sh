@@ -19,6 +19,7 @@ ADMIN_DB="${CUSTOM_FILES}/admin_data/admins.sqlite"
 TIMEZONE_DB="${CUSTOM_FILES}/timezone_data/timezones.sqlite"
 ELEVATION_PATH="${CUSTOM_FILES}/elevation_data"
 TRANSIT_DIR="${CUSTOM_FILES}/transit_tiles"
+TRAFFIC_TAR="${CUSTOM_FILES}/${traffic_name:-traffic}.tar"
 
 maybe_create_dir() {
   if ! test -d $1; then
