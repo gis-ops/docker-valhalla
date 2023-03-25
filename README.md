@@ -37,7 +37,7 @@ Our [package registry](https://github.com/gis-ops/docker-valhalla/pkgs/container
 
 ## Build the image
 
-If you want to build the image yourself, be aware that you might need to adapt the base image in the `Dockerfile` to reflect the version of Valhalla you'd like to build. You can find the tags of the `valhalla/valhalla:run-*` images here: https://hub.docker.com/r/valhalla/valhalla/tags. On top of the Valhalla base image we support the following build arguments (see [notes on user management](#notes-on-user-management)):
+If you want to build the image yourself, be aware that you might need to adapt the base image in the `Dockerfile` to reflect the version of Valhalla you'd like to build. You can find the tags of the `ghcr.io/valhalla/valhalla` images here: https://github.com/valhalla/valhalla/pkgs/container/valhalla. On top of the Valhalla base image we support the following build arguments (see [notes on user management](#notes-on-user-management)):
 
 - `VALHALLA_UID`: specify the user UID for the container-internal `valhalla` user. Either leave this blank or, most usually, specify your current user's UID.
 - `VALHALLA_GID`: specify the group GID for the container-internal `valhalla` user. Either leave this blank or, most usually, specify the group's GID whose members you want to have write access to the container-generated files.
