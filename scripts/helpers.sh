@@ -2,7 +2,7 @@
 
 # create global variables
 CUSTOM_FILES="/custom_files"
-GTFS_DIR="/gtfs_dir"
+GTFS_DIR="/gtfs_feeds"
 # if the user requested a path_extension, apply it
 if [[ -n $path_extension ]]; then
   CUSTOM_FILES="${CUSTOM_FILES}/${path_extension}"

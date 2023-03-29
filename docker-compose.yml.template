@@ -12,7 +12,7 @@ services:
     #    - VALHALLA_GID=1000
     volumes:
       - ./custom_files/:/custom_files
-      # - ./gtfs_dir:/gtfs_dir  # only enable with build_transit=True
+      # - ./gtfs_feeds:/gtfs_feeds  # only enable with build_transit=True
     environment:
       # Auto-download PBFs from Geofabrik
       # - tile_urls=https://download.geofabrik.de/europe/andorra-latest.osm.pbf https://download.geofabrik.de/europe/albania-latest.osm.pbf
