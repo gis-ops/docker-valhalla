@@ -129,7 +129,7 @@ else
   mjolnir_admin="--mjolnir-admin ${ADMIN_DB}"
   mjolnir_timezone="--mjolnir-timezone ${TIMEZONE_DB}"
   transit_dir="--mjolnir-transit-dir ${TRANSIT_DIR}"
-  gtfs_dir="--mjolnir-transit_feeds_dir ${GTFS_DIR}"
+  gtfs_dir="--mjolnir-transit-feeds-dir ${GTFS_DIR}"
   traffic="--mjolnir-traffic-extract ${TRAFFIC_TAR}"
   valhalla_build_config --mjolnir-tile-dir ${TILE_DIR} --mjolnir-tile-extract ${TILE_TAR} ${gtfs_dir} ${transit_dir} ${mjolnir_timezone} ${mjolnir_admin} ${additional_data_elevation} ${traffic} > ${CONFIG_FILE}  || exit 1
 fi
