@@ -36,7 +36,7 @@ if ([[ "${build_time_zones}" == "True" ]] && ! test -f "${TIMEZONE_DB}") || [[ "
 fi
 # if there's no transit tiles yet, but it should build transit, then do that; or force and remove
 if [[ "${build_transit}" == "Force" ]] || (! [[ -d ${TRANSIT_DIR} ]] && [[ "${build_transit}" == "True" ]]) || ([[ $(find ${TRANSIT_DIR} -maxdepth 1 -type d | wc -l) -eq 1 ]] && [[ "${build_transit}" == "True" ]]); then
-  rm ${TRANSIT_DIR} || true
+  rm -r ${TRANSIT_DIR} 2> /dev/null
   do_transit="True"
   if ! [[ -d ${GTFS_DIR} ]]; then
     echo "WARNING: Transit build requested, but no GTFS datasets found at ${GTFS_DIR}, skipping transit.."
@@ -131,7 +131,7 @@ else
   transit_dir="--mjolnir-transit-dir ${TRANSIT_DIR}"
   gtfs_dir="--mjolnir-transit_feeds_dir ${GTFS_DIR}"
   traffic="--mjolnir-traffic-extract ${TRAFFIC_TAR}"
-  valhalla_build_config --mjolnir-tile-dir ${TILE_DIR} --mjolnir-tile-extract ${TILE_TAR} ${transit_dir} ${mjolnir_timezone} ${mjolnir_admin} ${additional_data_elevation} ${traffic} > ${CONFIG_FILE}  || exit 1
+  valhalla_build_config --mjolnir-tile-dir ${TILE_DIR} --mjolnir-tile-extract ${gtfs_dir} ${TILE_TAR} ${transit_dir} ${mjolnir_timezone} ${mjolnir_admin} ${additional_data_elevation} ${traffic} > ${CONFIG_FILE}  || exit 1
 fi
 
 # build the databases maybe
