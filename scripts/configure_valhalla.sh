@@ -124,6 +124,7 @@ if test -f "${CONFIG_FILE}"; then
   jq --arg d "${GTFS_DIR}" '.mjolnir.transit_feeds_dir = $d' "${CONFIG_FILE}"| sponge "${CONFIG_FILE}"
   jq --arg d "${TRANSIT_DIR}" '.mjolnir.transit_dir = $d' "${CONFIG_FILE}"| sponge "${CONFIG_FILE}"
   jq --arg d "${TRAFFIC_TAR}" '.mjolnir.traffic_extract = $d' "${CONFIG_FILE}"| sponge "${CONFIG_FILE}"
+  jq --arg d "${server_threads}" '.mjolnir.concurrency = $d' "${CONFIG_FILE}"| sponge "${CONFIG_FILE}"
 else
   additional_data_elevation="--additional-data-elevation $ELEVATION_PATH"
   mjolnir_admin="--mjolnir-admin ${ADMIN_DB}"
@@ -131,10 +132,11 @@ else
   transit_dir="--mjolnir-transit-dir ${TRANSIT_DIR}"
   gtfs_dir="--mjolnir-transit-feeds-dir ${GTFS_DIR}"
   traffic="--mjolnir-traffic-extract ${TRAFFIC_TAR}"
+  threads="--mjolnir-concurrency ${server_threads}"
   valhalla_build_config \
     --mjolnir-tile-dir ${TILE_DIR} \
     --mjolnir-tile-extract ${TILE_TAR} \
-    ${gtfs_dir} ${transit_dir} ${mjolnir_timezone} \
+    ${gtfs_dir} ${transit_dir} ${mjolnir_timezone} ${threads} \
     ${mjolnir_admin} ${additional_data_elevation} ${traffic} > ${CONFIG_FILE}  || exit 1
 fi
 
