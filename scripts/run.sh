@@ -42,6 +42,8 @@ echo ""
 if [[ -z $server_threads ]]; then
   server_threads=$(nproc)
 fi
+export server_threads
+
 if [[ -z $build_tar ]]; then
   build_tar="True"
 fi
