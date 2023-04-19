@@ -40,8 +40,9 @@ echo ""
 
 # the env vars with True default are set in the dockerfile, others are evaluated in configure_valhalla.sh
 if [[ -z $server_threads ]]; then
-  server_threads=$(nproc)
+  export server_threads=$(nproc)
 fi
+
 if [[ -z $build_tar ]]; then
   build_tar="True"
 fi
