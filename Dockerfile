@@ -2,8 +2,8 @@
 # remove a few superfluous things and
 # create a new runner image from ubuntu:20.04
 # with the previous runner's artifacts
-
-FROM ghcr.io/valhalla/valhalla:latest as builder
+ARG VALHALLA_BUILDER_IMAGE=ghcr.io/valhalla/valhalla:latest
+FROM $VALHALLA_BUILDER_IMAGE as builder
 MAINTAINER Nils Nolde <nils@gis-ops.com>
 
 # remove some stuff from the original image
