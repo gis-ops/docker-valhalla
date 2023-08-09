@@ -1,6 +1,6 @@
 # Take the official valhalla runner image,
 # remove a few superfluous things and
-# create a new runner image from ubuntu:20.04
+# create a new runner image from ubuntu:22.04
 # with the previous runner's artifacts
 ARG VALHALLA_BUILDER_IMAGE=ghcr.io/valhalla/valhalla:latest
 FROM $VALHALLA_BUILDER_IMAGE as builder
