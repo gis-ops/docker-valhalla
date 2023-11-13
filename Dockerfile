@@ -8,20 +8,20 @@ MAINTAINER Nils Nolde <nils@gis-ops.com>
 
 # remove some stuff from the original image
 RUN cd /usr/local/bin && \
-  preserve="valhalla_service valhalla_build_tiles valhalla_build_config valhalla_build_admins valhalla_build_timezones valhalla_build_elevation valhalla_ways_to_edges valhalla_build_extract valhalla_export_edges valhalla_add_predicted_traffic valhalla_ingest_transit valhalla_convert_transit" && \
+  preserve="valhalla_service valhalla_build_tiles valhalla_build_config valhalla_build_admins valhalla_build_timezones valhalla_build_elevation valhalla_ways_to_edges valhalla_build_extract valhalla_export_edges valhalla_add_predicted_traffic valhalla_ingest_transit valhalla_convert_transit valhalla_add_landmarks valhalla_build_landmarks" && \
   mv $preserve .. && \
   for f in valhalla*; do rm $f; done && \
   cd .. && mv $preserve ./bin
 
-FROM ubuntu:22.04 as runner_base
+FROM ubuntu:23.04 as runner_base
 MAINTAINER Nils Nolde <nils@gis-ops.com>
 
 RUN apt-get update > /dev/null && \
     export DEBIAN_FRONTEND=noninteractive && \
     apt-get install -y libluajit-5.1-2 \
-      libzmq5 libczmq4 spatialite-bin libprotobuf-lite23 sudo locales \
+      libzmq5 libczmq4 spatialite-bin libprotobuf-lite32 sudo locales \
       libsqlite3-0 libsqlite3-mod-spatialite libcurl4 \
-      python3.10-minimal python3-distutils curl unzip moreutils jq spatialite-bin python-is-python3 > /dev/null
+      python3.11-minimal python3-distutils curl unzip moreutils jq spatialite-bin python-is-python3 > /dev/null
 
 COPY --from=builder /usr/local /usr/local
 COPY --from=builder /usr/lib/python3/dist-packages/valhalla/* /usr/lib/python3/dist-packages/valhalla/
