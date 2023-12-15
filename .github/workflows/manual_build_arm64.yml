@@ -24,4 +24,5 @@ jobs:
 
       - name: Build latest image
         run: |
+          sed -i "s/:latest/:manually_triggered_build_arm64/g" Dockerfile
           docker buildx build --push --platform linux/arm64 --tag ghcr.io/${{ github.repository }}/valhalla:manually_triggered_build_arm64 .

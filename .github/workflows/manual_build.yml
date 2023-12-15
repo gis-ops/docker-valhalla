@@ -20,6 +20,6 @@ jobs:
 
       - name: Build latest image
         run: |
-          sed -i "s/:latest/:manually_triggered_build/g" Dockerfile
-          docker build -t ghcr.io/${{ github.repository }}/valhalla:manually_triggered_build .
-          docker push ghcr.io/${{ github.repository }}/valhalla:manually_triggered_build
+          sed -i "s/:latest/:manually_triggered_build_amd64/g" Dockerfile
+          docker build -t ghcr.io/${{ github.repository }}/valhalla:manually_triggered_build_amd64 .
+          docker push ghcr.io/${{ github.repository }}/valhalla:manually_triggered_build_amd64
