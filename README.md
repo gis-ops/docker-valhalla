@@ -55,7 +55,7 @@ docker build -t ghcr.io/gis-ops/docker-valhalla/valhalla:latest .
 This image respects the following custom environment variables to be passed during container startup. Note, all variables have a default:
 
 - `tile_urls`: Add as many (space-separated) URLs as you like, e.g. https://download.geofabrik.de/europe/andorra-latest.osm.pbf
-- `use_tiles_ignore_pbf`: `True` uses a local tile.tar file and skips building. Default `False`.
+- `use_tiles_ignore_pbf`: `True` uses a local tile.tar file and skips building. Default `True`.
 - `force_rebuild`: `True` forces a rebuild of the routing tiles. Default `False`.
 - `build_elevation`: `True` downloads elevation tiles which are covering the routing graph. `Force` will do the same, but first delete any existing elevation tiles. Default `False`.
 - `build_admins`: `True` builds the admin db needed for things like border-crossing penalties and detailed routing responses. `Force` will do the same, but first delete the existing db. Default `False`.
