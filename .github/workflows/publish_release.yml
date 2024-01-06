@@ -31,7 +31,12 @@ jobs:
       
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-
-      - name: Build container image
-        run: |
-            docker buildx build --push --platform linux/amd64,linux/arm64 --tag ghcr.io/${{ github.repository }}/valhalla:${{ steps.extract_branch.outputs.branch }} .
+      
+      - uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          platforms: linux/amd64,linux/arm64
+          tags: ghcr.io/${{ github.repository }}/valhalla:${{ steps.extract_branch.outputs.branch }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
