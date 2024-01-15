@@ -102,6 +102,7 @@ fi
 
 ### Remove a config entry and check if it is added back ###
 echo "#### Update config test ####"
+cp "${custom_file_folder}/valhalla.json" "${custom_file_folder}/valhalla_base.json"
 jq 'del(.meili.default.beta)' "${custom_file_folder}/valhalla.json" | sponge "${custom_file_folder}/valhalla.json"
 docker restart valhalla_full
 wait_for_docker
@@ -111,6 +112,12 @@ jq -e '.meili.default.beta' "${custom_file_folder}/valhalla.json" >/dev/null
 
 if [[ $? -eq 1 ]]; then
   echo "valhalla.json should have been updated but wasn't."
+  exit 1
+fi
+
+line_count=$(diff -y --suppress-common-lines <(jq --sort-keys . "${custom_file_folder}/valhalla_base.json") <(jq --sort-keys . "${custom_file_folder}/valhalla.json") | wc -l)
+if [[ $line_count != "0" ]]; then
+  echo "Valhalla config was not updated correctly. Check the generated config files."
   exit 1
 fi
 
@@ -125,6 +132,12 @@ wait_for_docker
 jq -e '.meili.default.beta' "${custom_file_folder}/valhalla.json" >/dev/null
 
 if [[ $? -eq 0 ]]; then
+  echo "valhalla.json should not have been updated but was"
+  exit 1
+fi
+
+line_count=$(diff -y --suppress-common-lines <(jq --sort-keys . "${custom_file_folder}/valhalla_base.json") <(jq --sort-keys . "${custom_file_folder}/valhalla.json") | wc -l)
+if [[ $line_count != "1" ]]; then
   echo "valhalla.json should not have been updated but was"
   exit 1
 fi

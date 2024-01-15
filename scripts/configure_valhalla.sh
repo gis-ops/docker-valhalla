@@ -135,7 +135,7 @@ if test -f "${CONFIG_FILE}"; then
           echo "INFO: copied new config entry ${key}=${newval} into existing config."
 
           # and set it on the new one
-          jq --arg d "${newval}" "${key} = \$d" "${CONFIG_FILE}"| sponge "${CONFIG_FILE}"
+          jq --argjson d "${newval}" "${key} = \$d" "${CONFIG_FILE}"| sponge "${CONFIG_FILE}"
       fi  
     done 
 
