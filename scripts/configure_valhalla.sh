@@ -116,6 +116,32 @@ files=$(echo $files | xargs)
 
 # be careful how to write the config (mostly for restart scenarios where env vars are true all of a sudden)
 if test -f "${CONFIG_FILE}"; then
+
+  if [[ "${update_existing_config}" == "True" ]]; then 
+    echo "INFO: Found existing valhalla.json. Updating possibly missing entries."
+
+    # create temporary default config
+    valhalla_build_config > ${TMP_CONFIG_FILE}  || exit 1
+
+    # for each path in the temp config (excluding array indices)
+    jq -r 'paths | select(map(type) | index("number") | not ) | "." + join(".")' ${TMP_CONFIG_FILE} | while read key ; do
+
+      # if the key path does not exist in the existing config 
+      jq -e "${key} | if type == \"null\" then false else true end" ${CONFIG_FILE} >/dev/null
+      if [ $? -eq 1 ]; then 
+
+          # get its value from the temp config
+          newval=$(jq "${key}" ${TMP_CONFIG_FILE})
+          echo "INFO: copied new config entry ${key}=${newval} into existing config."
+
+          # and set it on the new one
+          jq --arg d "${newval}" "${key} = \$d" "${CONFIG_FILE}"| sponge "${CONFIG_FILE}"
+      fi  
+    done 
+
+    rm ${TMP_CONFIG_FILTMP_CONFIG_FILEE}
+  fi
+
   jq --arg d "${TILE_DIR}" '.mjolnir.tile_dir = $d' "${CONFIG_FILE}"| sponge "${CONFIG_FILE}"
   jq --arg d "${TILE_TAR}" '.mjolnir.tile_extract = $d' "${CONFIG_FILE}"| sponge "${CONFIG_FILE}"
   jq --arg d "${ADMIN_DB}" '.mjolnir.admin = $d' "${CONFIG_FILE}"| sponge "${CONFIG_FILE}"
