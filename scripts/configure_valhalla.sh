@@ -139,7 +139,7 @@ if test -f "${CONFIG_FILE}"; then
       fi  
     done 
 
-    rm ${TMP_CONFIG_FILTMP_CONFIG_FILEE}
+    rm ${TMP_CONFIG_FILE}
   fi
 
   jq --arg d "${TILE_DIR}" '.mjolnir.tile_dir = $d' "${CONFIG_FILE}"| sponge "${CONFIG_FILE}"
