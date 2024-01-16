@@ -67,7 +67,7 @@ This image respects the following custom environment variables to be passed duri
 - `serve_tiles`: `True` starts the valhalla service. Default `True`.
 - `tileset_name`: The name of the resulting graph on disk. Very useful in case you want to build multiple datasets in the same directory. Default `valhalla_tiles`.
 - `traffic_name`: The name of the traffic.tar. Again, useful for serving mulitple traffic archives from the same directory. If empty, i.e. "", then no traffic archive will be built. Default `traffic.tar`.
-- `update_existing_config`: `True` updates missing keys in existing valhalla.json. Useful for updating stale config whiles to include newly introduced config parameters. Default `True`.
+- `update_existing_config`: `True` updates missing keys in existing valhalla.json. Useful for updating stale config files to include newly introduced config parameters. Default `True`.
 
 ## Container recipes
 
