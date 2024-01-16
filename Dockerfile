@@ -17,11 +17,11 @@ FROM ubuntu:23.04 as runner_base
 MAINTAINER Nils Nolde <nils@gis-ops.com>
 
 RUN apt-get update > /dev/null && \
-    export DEBIAN_FRONTEND=noninteractive && \
-    apt-get install -y libluajit-5.1-2 \
-      libzmq5 libczmq4 spatialite-bin libprotobuf-lite32 sudo locales \
-      libsqlite3-0 libsqlite3-mod-spatialite libcurl4 \
-      python3.11-minimal python3-distutils curl unzip moreutils jq spatialite-bin python-is-python3 > /dev/null
+  export DEBIAN_FRONTEND=noninteractive && \
+  apt-get install -y libluajit-5.1-2 \
+  libzmq5 libczmq4 spatialite-bin libprotobuf-lite32 sudo locales \
+  libsqlite3-0 libsqlite3-mod-spatialite libcurl4 \
+  python3.11-minimal python3-distutils curl unzip moreutils jq spatialite-bin python-is-python3 > /dev/null
 
 COPY --from=builder /usr/local /usr/local
 COPY --from=builder /usr/lib/python3/dist-packages/valhalla/* /usr/lib/python3/dist-packages/valhalla/
@@ -31,6 +31,7 @@ ENV LD_LIBRARY_PATH="/usr/local/lib:${LD_LIBRARY_PATH}"
 ENV use_tiles_ignore_pbf=True
 ENV build_tar=True
 ENV serve_tiles=True
+ENV update_existing_config=True
 
 # what this does:
 # if the docker user specified a UID/GID (other than 0, would be a ludicrous instruction anyways) in the image build, we will use that to create the valhalla linux user in the image. that ensures that the docker user can edit the created files on the host without sudo and with 664/775 permissions, so that users of that group can also write. the default is to give the valhalla user passwordless sudo. that also means that all commands creating files in the entrypoint script need to be executed with sudo when built with defaults..
@@ -53,10 +54,10 @@ WORKDIR /custom_files
 
 # Smoke tests
 RUN python -c "import valhalla,sys; print (sys.version, valhalla)" \
-    && valhalla_build_config | jq type \
-    && cat /usr/local/src/valhalla_version \
-    && valhalla_build_tiles -v \
-    && ls -la /usr/local/bin/valhalla*
+  && valhalla_build_config | jq type \
+  && cat /usr/local/src/valhalla_version \
+  && valhalla_build_tiles -v \
+  && ls -la /usr/local/bin/valhalla*
 
 ENV PATH /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:$PATH
 ENV LD_LIBRARY_PATH /usr/local/lib:/lib/x86_64-linux-gnu:/usr/lib/x86_64-linux-gnu:/lib32:/usr/lib32

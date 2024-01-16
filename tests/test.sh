@@ -100,6 +100,51 @@ if [[ $(last_mod_tiles $tileset_name) != $mod_date_tiles ]]; then
   exit 1
 fi
 
+### Remove a config entry and check if it is added back ###
+echo "#### Update config test ####"
+cp "${custom_file_folder}/valhalla.json" "${custom_file_folder}/valhalla_base.json"
+jq 'del(.meili.default.beta)' "${custom_file_folder}/valhalla.json" | sponge "${custom_file_folder}/valhalla.json"
+docker restart valhalla_full
+wait_for_docker
+
+# should have been added back
+jq -e '.meili.default.beta' "${custom_file_folder}/valhalla.json" >/dev/null
+
+if [[ $? -eq 1 ]]; then
+  echo "valhalla.json should have been updated but wasn't."
+  exit 1
+fi
+
+line_count=$(diff -y --suppress-common-lines <(jq --sort-keys . "${custom_file_folder}/valhalla_base.json") <(jq --sort-keys . "${custom_file_folder}/valhalla.json") | wc -l)
+if [[ $line_count != "0" ]]; then
+  echo "Valhalla config was not updated correctly. Check the generated config files."
+  exit 1
+fi
+
+# should not be added back 
+jq 'del(.meili.default.beta)' "${custom_file_folder}/valhalla.json" | sponge "${custom_file_folder}/valhalla.json"
+docker stop valhalla_full
+
+# new container with update_existing_config set to false
+docker run -d --name valhalla_no_config_update -p 8002:8002 -v $custom_file_folder:/custom_files -e tileset_name=$tileset_name -e use_tiles_ignore_pbf=False -e build_elevation=False -e build_admins=True -e build_time_zones=True -e build_tar=False -e server_threads=1 -e update_existing_config=False ${valhalla_image}
+wait_for_docker
+
+jq -e '.meili.default.beta' "${custom_file_folder}/valhalla.json" >/dev/null
+
+if [[ $? -eq 0 ]]; then
+  echo "valhalla.json should not have been updated but was"
+  exit 1
+fi
+
+line_count=$(diff -y --suppress-common-lines <(jq --sort-keys . "${custom_file_folder}/valhalla_base.json") <(jq --sort-keys . "${custom_file_folder}/valhalla.json") | wc -l)
+if [[ $line_count != "1" ]]; then
+  echo "valhalla.json should not have been updated but was"
+  exit 1
+fi
+
+docker stop  valhalla_no_config_update
+docker rm valhalla_no_config_update
+
 #### Add a PBF, restart and see if it worked ####
 echo "#### Add PBF test ####"
 # reset the config

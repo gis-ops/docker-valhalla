@@ -17,12 +17,12 @@ This image aims at being user-friendly and most efficient with your time and res
 
 ## Features
 
--   Easily switch graphs by mapping different volumes to containers.
--   Stores all relevant data (tiles, config, admin & timezone DBs, elevation) in the mapped volume.
--   Load and build from **multiple URLs** pointing to valid pbf files.
--   Load local data through volume mapping.
--   **Supports auto rebuild** on OSM file changes through hash mapping.
-- 	**new**: supports advanced user management to avoid sudo access to host-shared folders and files, see [notes on user management](#notes-on-user-management)
+- Easily switch graphs by mapping different volumes to containers.
+- Stores all relevant data (tiles, config, admin & timezone DBs, elevation) in the mapped volume.
+- Load and build from **multiple URLs** pointing to valid pbf files.
+- Load local data through volume mapping.
+- **Supports auto rebuild** on OSM file changes through hash mapping.
+-     **new**: supports advanced user management to avoid sudo access to host-shared folders and files, see [notes on user management](#notes-on-user-management)
 
 ## Dockerhub/Github Packages
 
@@ -67,6 +67,7 @@ This image respects the following custom environment variables to be passed duri
 - `serve_tiles`: `True` starts the valhalla service. Default `True`.
 - `tileset_name`: The name of the resulting graph on disk. Very useful in case you want to build multiple datasets in the same directory. Default `valhalla_tiles`.
 - `traffic_name`: The name of the traffic.tar. Again, useful for serving mulitple traffic archives from the same directory. If empty, i.e. "", then no traffic archive will be built. Default `traffic.tar`.
+- `update_existing_config`: `True` updates missing keys in existing valhalla.json. Useful for updating stale config files to include newly introduced config parameters. Default `True`.
 
 ## Container recipes
 

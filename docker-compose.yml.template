@@ -26,6 +26,7 @@ services:
       - build_transit=False  # build transit, needs existing GTFS directories mapped to /gtfs_feeds
       - build_tar=True  # build an indexed tar file from the tile_dir for faster graph loading times
       - force_rebuild=False  # forces a rebuild of the routing tiles with "True"
+      - update_existing_config=True  # if there are new config entries in the default config, add them to the existing config  
       # - path_extension=graphs  # this path will be internally appended to /custom_files; no leading or trailing path separator!
     # adapt to the expected build time
     # healthcheck: 
