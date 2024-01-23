@@ -251,7 +251,7 @@ if [[ "${do_build}" == "True" ]] || [[ updated_default_speed_config == "True" ]]
   echo "= Enhancing the initial graph ="
   echo "==============================="
   valhalla_build_tiles -c ${CONFIG_FILE} -s enhance ${files} || exit 1
-fi
 
-echo "INFO: Successfully built files: ${files}"
-add_hashes "${files}"
+  echo "INFO: Successfully built files: ${files}"
+  add_hashes "${files}"
+fi
