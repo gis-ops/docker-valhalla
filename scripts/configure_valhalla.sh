@@ -219,10 +219,25 @@ if [[ "${do_build}" == "True" ]]; then
     fi
     maybe_create_dir ${ELEVATION_PATH}
     echo ""
-    echo "================================="
+    echo "================================"
     echo "= Download the elevation tiles ="
-    echo "================================="
+    echo "================================"
     valhalla_build_elevation --from-tiles --decompress -c ${CONFIG_FILE} -v || exit 1
+  fi
+
+  # Use OSMSpeeds default_speeds
+  if [[ $use_default_speeds_config == "True" ]]; then
+    if test -f "${DEFAULT_SPEEDS_CONFIG}"; then
+      echo "WARNING: found default speed config, skipping download"
+    else 
+
+      echo ""
+      echo "======================================"
+      echo "= Download the default speeds config ="
+      echo "======================================"
+      download_file "${default_speeds_config_url}" "${DEFAULT_SPEEDS_CONFIG}"
+    fi
+    jq --arg d "${DEFAULT_SPEEDS_CONFIG}" '.mjolnir.default_speeds_config = $d' "${CONFIG_FILE}" | sponge "${CONFIG_FILE}"
   fi
 
   echo ""
