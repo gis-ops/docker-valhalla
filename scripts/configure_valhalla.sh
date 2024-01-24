@@ -231,10 +231,7 @@ fi
 
 updated_default_speed_config=False
 if [[ $use_default_speeds_config == "True" ]]; then
-  if test -f "${DEFAULT_SPEEDS_CONFIG}"; then
-    echo "WARNING: found default speed config, skipping download"
-  else 
-
+  if ! test -f "${DEFAULT_SPEEDS_CONFIG}"; then
     echo ""
     echo "======================================"
     echo "= Download the default speeds config ="
