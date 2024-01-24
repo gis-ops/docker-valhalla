@@ -7,6 +7,7 @@ admin_db="${custom_file_folder}/admin_data/admins.sqlite"
 timezone_db="${custom_file_folder}/timezone_data/timezones.sqlite"
 ANDORRA="$PWD/tests/andorra-latest.osm.pbf"
 LIECHTENSTEIN="$PWD/tests/liechtenstein-latest.osm.pbf"
+default_speeds_config="${custom_file_folder}/default_speeds.json"
 
 # keep requesting a route until it succeeds
 wait_for_docker() {
@@ -58,16 +59,22 @@ cp ${ANDORRA} ${custom_file_folder}
 echo "#### Full build test, no extract ####"
 tileset_name="andorra_tiles"
 tile_tar="${custom_file_folder}/${tileset_name}.tar"
-docker run -d --name valhalla_full -p 8002:8002 -v $custom_file_folder:/custom_files -e tileset_name=$tileset_name -e use_tiles_ignore_pbf=False -e build_elevation=False -e build_admins=True -e build_time_zones=True -e build_tar=False -e server_threads=1 ${valhalla_image}
+docker run -d --name valhalla_full -p 8002:8002 -v $custom_file_folder:/custom_files \
+        -e tileset_name=$tileset_name -e use_tiles_ignore_pbf=False -e build_elevation=False \
+        -e build_admins=True -e build_time_zones=True -e build_tar=False \
+        -e server_threads=1 -e use_default_speeds_config=True ${valhalla_image}
 wait_for_docker
 
 # Make sure all files are there!
-for f in ${admin_db} ${timezone_db}; do
+for f in ${admin_db} ${timezone_db} ${default_speeds_config}; do
   if [[ ! -f $f ]]; then
     echo "Couldn't find ${f}"
     exit 1
   fi
 done
+
+# Make sure the default_speeds_config entry in mjolnir was added 
+jq -e '.mjolnir.default_speeds_config' "${custom_file_folder}/valhalla.json" >/dev/null
 
 eval $route_request > /dev/null
 

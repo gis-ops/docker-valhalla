@@ -68,6 +68,8 @@ This image respects the following custom environment variables to be passed duri
 - `tileset_name`: The name of the resulting graph on disk. Very useful in case you want to build multiple datasets in the same directory. Default `valhalla_tiles`.
 - `traffic_name`: The name of the traffic.tar. Again, useful for serving mulitple traffic archives from the same directory. If empty, i.e. "", then no traffic archive will be built. Default `traffic.tar`.
 - `update_existing_config`: `True` updates missing keys in existing valhalla.json. Useful for updating stale config files to include newly introduced config parameters. Default `True`.
+- `use_default_speeds_config`: `True` loads a JSON file used to enhance default speeds (or falls back to an existing `custom_files/default_speeds.json`) and sets the respective config entry. Read more [here](https://github.com/OpenStreetMapSpeeds/schema). Default `False`.
+- `default_speeds_config_url`: Remote location of the `default_speeds_config` JSON. Default `https://raw.githubusercontent.com/OpenStreetMapSpeeds/schema/master/default_speeds.json`
 
 ## Container recipes
 
