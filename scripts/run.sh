@@ -49,6 +49,9 @@ fi
 if [[ -z $serve_tiles ]]; then
   serve_tiles="True"
 fi
+if [[ "{$force_rebuild}" == "True" ]]; then
+  build_tar="Force"
+fi
 
 # evaluate CMD
 if [[ $1 == "build_tiles" ]]; then
