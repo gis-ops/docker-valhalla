@@ -56,7 +56,7 @@ This image respects the following custom environment variables to be passed duri
 
 - `tile_urls`: Add as many (space-separated) URLs as you like, e.g. https://download.geofabrik.de/europe/andorra-latest.osm.pbf
 - `use_tiles_ignore_pbf`: `True` uses a local tile.tar file and skips building. Default `True`.
-- `force_rebuild`: `True` forces a rebuild of the routing tiles. Default `False`.
+- `force_rebuild`: `True` forces a rebuild of the routing tiles and sets `build_tar` to `Force`. Default `False`.
 - `build_elevation`: `True` downloads elevation tiles which are covering the routing graph. `Force` will do the same, but first delete any existing elevation tiles. Default `False`.
 - `build_admins`: `True` builds the admin db needed for things like border-crossing penalties and detailed routing responses. `Force` will do the same, but first delete the existing db. Default `False`.
 - `build_time_zones`: `True` builds the timezone db which is needed for time-dependent routing. `Force` will do the same, but first delete the existing db. Default `False`.

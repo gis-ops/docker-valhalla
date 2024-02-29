@@ -17,11 +17,15 @@ run_cmd() {
 }
 
 do_build_tar() {
-  if ([[ ${build_tar} == "True" && ! -f $TILE_TAR ]]) || [[ ${build_tar} == "Force" ]]; then
+  local build_tar_local=$1
+  if ([[ ${build_tar_local} == "True" && ! -f $TILE_TAR ]]) || [[ ${build_tar_local} == "Force" ]]; then
     options="-c ${CONFIG_FILE} -v"
     if ! [[ -z ${traffic_name} ]]; then
       options="${options} -t"
     fi
+    if [[${build_tar_local} == "Force" ]]; then 
+      options="${options} --overwrite"
+    fi 
     run_cmd "valhalla_build_extract ${options}"
   fi
 }
@@ -49,14 +53,17 @@ fi
 if [[ -z $serve_tiles ]]; then
   serve_tiles="True"
 fi
+if [[ "$force_rebuild" == "True" ]]; then
+  build_tar="Force"
+fi
 
 # evaluate CMD
 if [[ $1 == "build_tiles" ]]; then
 
   run_cmd "/valhalla/scripts/configure_valhalla.sh ${CONFIG_FILE} ${CUSTOM_FILES} ${TILE_DIR} ${TILE_TAR}"
   # tar tiles unless not wanted
-  if [[ "$build_tar" == "True" ]] || [[ ${build_tar} == "Force" ]]; then
-    do_build_tar
+  if [[ "$build_tar" == "True" ]] || [[ "$build_tar" == "Force" ]]; then
+    do_build_tar "$build_tar"
   else
     echo "WARNING: Skipping tar building. Expect degraded performance while using Valhalla."
   fi
@@ -86,7 +93,7 @@ if [[ $1 == "build_tiles" ]]; then
     echo "INFO: Not serving tiles. Exiting."
   fi
 elif [[ $1 == "tar_tiles" ]]; then
-  do_build_tar
+  do_build_tar "$build_tar"
 else
   echo "ERROR: Unrecognized CMD: '$1'"
   exit 1
