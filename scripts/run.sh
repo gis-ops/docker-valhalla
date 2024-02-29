@@ -17,8 +17,8 @@ run_cmd() {
 }
 
 do_build_tar() {
-  build_tar=$1
-  if ([[ ${build_tar} == "True" && ! -f $TILE_TAR ]]) || [[ ${build_tar} == "Force" ]]; then
+  local build_tar_local=$1
+  if ([[ ${build_tar_local} == "True" && ! -f $TILE_TAR ]]) || [[ ${build_tar_local} == "Force" ]]; then
     options="-c ${CONFIG_FILE} -v --overwrite"
     if ! [[ -z ${traffic_name} ]]; then
       options="${options} -t"
