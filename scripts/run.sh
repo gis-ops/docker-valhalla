@@ -18,12 +18,12 @@ run_cmd() {
 
 do_build_tar() {
   local build_tar_local=$1
-  if ([[ ${build_tar_local} == "True" && ! -f $TILE_TAR ]]) || [[ ${build_tar_local} == "Force" ]]; then
+  if ([[ "${build_tar_local}" == "True" && ! -f $TILE_TAR ]]) || [[ "${build_tar_local}" == "Force" ]]; then
     options="-c ${CONFIG_FILE} -v"
     if ! [[ -z ${traffic_name} ]]; then
       options="${options} -t"
     fi
-    if [[${build_tar_local} == "Force" ]]; then 
+    if [[ "${build_tar_local}" == "Force" ]]; then 
       options="${options} --overwrite"
     fi 
     run_cmd "valhalla_build_extract ${options}"
