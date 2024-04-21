@@ -114,7 +114,7 @@ If you change the PBF files by either adding new ones or deleting any, Valhalla 
 
 Elevation tiles need to be in HGT (file format of the SRTM dataset) format and need to be named like `NXXEYYY.hgt`. [More info about format](https://github.com/tilezen/joerd/blob/master/docs/formats.md#skadi).
 
-You need to store elevation tiles in `custom_files/elevation_data/` directory. Tiles need to be grouped in folders by latitude , for example:
+You need to store elevation tiles in the `<base_path>/elevation_data` directory (by default `custom_files/elevation_data/`). Tiles need to be grouped in folders by latitude , for example:
 
 ```
 custom_files/elevation_data/
