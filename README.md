@@ -125,7 +125,7 @@ custom_files/elevation_data/
     N54E016.hgt
 ```
 
-After providing new elevation tiles, you need to restart container and rebuild graph with `force_rebuild=True` environment variable. 
+If you had an existing graph before you acquired new elevation data, you'll need to rebuild the graph for the new data to become available, e.g. by starting a new container with force_rebuild=True. If you want to use new elevation data for Elevation API, you just need to restart container.
 
 #### Customize Valhalla configuration
 
