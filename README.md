@@ -110,6 +110,23 @@ docker restart valhalla
 
 If you change the PBF files by either adding new ones or deleting any, Valhalla will build new tiles on the next restart unless told not to (e.g. setting `use_tiles_ignore_pbf=True`).
 
+#### Build Valhalla Graph with custom elevation tiles
+
+Elevation tiles need to be in HGT (file format of the SRTM dataset) format and need to be named like `NXXEYYY.hgt`. [More info about format](https://github.com/tilezen/joerd/blob/master/docs/formats.md#skadi).
+
+You need to store elevation tiles in the `<base_path>/elevation_data` directory (by default `custom_files/elevation_data/`). Tiles need to be grouped in folders by latitude , for example:
+
+```
+custom_files/elevation_data/
+  N53/
+    N53E016.hgt
+    N53E017.hgt
+  N54/
+    N54E016.hgt
+```
+
+If you had an existing graph before you acquired new elevation data, you'll need to rebuild the graph for the new data to become available, e.g. by starting a new container with force_rebuild=True. If you want to use new elevation data for Elevation API, you just need to restart container.
+
 #### Customize Valhalla configuration
 
 If you need to customize Valhalla's configuration to e.g. increase the allowed maximum distance for the `/route` POST endpoint, just edit `custom_files/valhalla.json` and restart the container. It won't rebuild the tiles in this case, unless you tell it to do so via environment variables.
