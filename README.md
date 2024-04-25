@@ -62,7 +62,7 @@ This image respects the following custom environment variables to be passed duri
 - `build_time_zones`: `True` builds the timezone db which is needed for time-dependent routing. `Force` will do the same, but first delete the existing db. Default `False`.
 - `build_transit`: `True` will attempt to build transit tiles if none exist yet. `Force` will remove existing transit **and** routing tiles. Default `False`.
 - `build_tar` (since 29.10.2021/v`3.1.5`): `True` creates a tarball of the tiles including an index which allows for extremely faster graph loading after reboots. `Force` will do the same, but first delete the existing tarball. Default `True`.
-- `server_threads`: How many threads `valhalla_build_tiles` will use and `valhalla_service` will run with. Default is the value of `nproc`.
+- `server_threads`: How many threads `valhalla_build_tiles` will use and `valhalla_service` will run with. Default is the value of `nproc`. If valhalla kills it self when building tiles, lower this number. 
 - `path_extension`: This path will be appended to the container-internal `/custom_files` (and by extension to the docker volume mapped to that path) and will be the directory where all files will be created. Can be very useful in certain deployment scenarios. No leading/trailing path separator allowed. Default is ''.
 - `serve_tiles`: `True` starts the valhalla service. Default `True`.
 - `tileset_name`: The name of the resulting graph on disk. Very useful in case you want to build multiple datasets in the same directory. Default `valhalla_tiles`.
@@ -90,6 +90,8 @@ At this point Valhalla is running, but there is no graph tiles yet. Follow the s
 #### Build Valhalla with transit
 
 Valhalla supports reading raw GTFS feeds to build transit into its graph, see the [docs](https://valhalla.github.io/valhalla/api/turn-by-turn/api-reference/#sample-json-payloads-for-multimodal-requests-with-transit) for more details.
+
+Put the unzipped GTFS feeds as subfolders in the main gtfs folder, e.g. `gtfs_feeds/berlin/`, otherwise the files will not be found.
 
 To enable `multimodal` routing, you'll need to map the directory which contains all the GTFS feeds to the container's `/gtfs_feeds` directory, e.g.
 
