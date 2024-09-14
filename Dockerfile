@@ -13,7 +13,7 @@ RUN cd /usr/local/bin && \
   for f in valhalla*; do rm $f; done && \
   cd .. && mv $preserve ./bin
 
-FROM ubuntu:23.04 as runner_base
+FROM ubuntu:24.04 as runner_base
 MAINTAINER Nils Nolde <nils@gis-ops.com>
 
 RUN apt-get update > /dev/null && \
@@ -24,7 +24,7 @@ RUN apt-get update > /dev/null && \
   python3.11-minimal python3-distutils curl unzip moreutils jq spatialite-bin python-is-python3 > /dev/null
 
 COPY --from=builder /usr/local /usr/local
-COPY --from=builder /usr/lib/python3/dist-packages/valhalla /usr/lib/python3/dist-packages
+COPY --from=builder /usr/lib/python3/dist-packages/valhalla/* /usr/lib/python3/dist-packages/valhalla
 
 ENV LD_LIBRARY_PATH="/usr/local/lib:${LD_LIBRARY_PATH}"
 # export the True defaults
