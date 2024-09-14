@@ -24,7 +24,7 @@ RUN apt-get update > /dev/null && \
   python3.11-minimal python3-distutils curl unzip moreutils jq spatialite-bin python-is-python3 > /dev/null
 
 COPY --from=builder /usr/local /usr/local
-COPY --from=builder /usr/lib/python3/dist-packages/valhalla /usr/lib/python3/dist-packages/valhalla
+COPY --from=builder /usr/lib/python3/dist-packages/valhalla /usr/lib/python3/dist-packages
 
 ENV LD_LIBRARY_PATH="/usr/local/lib:${LD_LIBRARY_PATH}"
 # export the True defaults
