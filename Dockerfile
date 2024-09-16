@@ -18,13 +18,14 @@ MAINTAINER Nils Nolde <nils@gis-ops.com>
 
 RUN apt-get update > /dev/null && \
   export DEBIAN_FRONTEND=noninteractive && \
-  apt-get install -y libluajit-5.1-2 libgdal32 \
+  apt-get install -y libluajit-5.1-2 libgdal34 \
   libzmq5 libczmq4 spatialite-bin libprotobuf-lite32 sudo locales \
   libsqlite3-0 libsqlite3-mod-spatialite libcurl4 \
-  python3.11-minimal python3-distutils curl unzip moreutils jq spatialite-bin python-is-python3 > /dev/null
+  python3.12-minimal python3-requests python3-shapely python-is-python3 \
+  curl unzip moreutils jq spatialite-bin > /dev/null
 
 COPY --from=builder /usr/local /usr/local
-COPY --from=builder /usr/lib/python3/dist-packages/valhalla/* /usr/lib/python3/dist-packages/valhalla
+COPY --from=builder /usr/local/lib/python3.12/dist-packages/valhalla /usr/local/lib/python3.12/dist-packages/
 
 ENV LD_LIBRARY_PATH="/usr/local/lib:${LD_LIBRARY_PATH}"
 # export the True defaults
