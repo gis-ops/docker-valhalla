@@ -1,7 +1,7 @@
 [![ci tests](https://github.com/nilsnolde/docker-valhalla/actions/workflows/tests.yml/badge.svg)](https://github.com/nilsnolde/docker-valhalla/actions/workflows/tests.yml)
 
 > [!WARNING]
-> This repository has been archived. The code moved to upstream, see https://github.com/valhalla/valhalla/docker/README.md. However,
+> This repository has been archived. The code moved to upstream, see https://github.com/valhalla/valhalla/blob/master/docker/README.md. However,
 > do note, some things changed:
 > - `do_admins` & `do_timezones` & `use_default_speeds_config` default to `"True"` instead of `"False"`
 > - deprecated `VALHALLA_UID` & `VALHALLA_GID`
